@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#244b32">
+  <title>Grain Bag Tracker</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f3f5f0;
+      color: #202820;
+    }
+    header {
+      background: #244b32;
+      color: white;
+      padding: 24px 18px;
+    }
+    header h1 { margin: 0 0 6px; font-size: 25px; }
+    header p { margin: 0; opacity: .85; }
+    main { max-width: 620px; margin: auto; padding: 18px; }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px #0000000c;
+    }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat {
+      background: #e7eee5;
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .stat span { font-size: 13px; color: #4b5d4c; }
+    .stat strong { display: block; font-size: 32px; margin-top: 5px; }
+    label { display: block; font-weight: 600; margin: 14px 0 7px; }
+    input, select, button {
+      width: 100%;
+      font: inherit;
+      border-radius: 10px;
+      padding: 13px;
+    }
+    input, select { border: 1px solid #cbd3c8; background: white; }
+    button {
+      border: 0;
+      background: #244b32;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button.secondary { background: #e7eee5; color: #244b32; }
+    .hint { color: #637063; font-size: 13px; line-height: 1.5; }
+    .bag {
+      border-top: 1px solid #e5e9e3;
+      padding: 13px 0;
+      overflow-wrap: anywhere;
+    }
+    .bag:first-child { border-top: 0; }
+    .bag small { display: block; color: #687568; margin-top: 5px; }
+    .empty { color: #687568; text-align: center; padding: 20px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌽 Grain Bag Tracker</h1>
+    <p>One place for all your farm crews</p>
+  </header>
+  <main>
+    <section class="card">
+      <div class="stats">
+        <div class="stat">
+          <span>Total bags recorded</span>
+          <strong id="total">0</strong>
+        </div>
+        <div class="stat">
+          <span>Fields recorded</span>
+          <strong id="fields">0</strong>
+        </div>
+      </div>
+      <p class="hint">Starter version. Records are stored on this device only.</p>
+    </section>
+
+    <section class="card">
+      <h2>Record a bag</h2>
+      <form id="bagForm">
+        <label for="crew">Crew</label>
+        <select id="crew">
+          <option>Crew 1</option>
+          <option>Crew 2</option>
+          <option>Crew 3</option>
+        </select>
+
+        <label for="field">Field name</label>
+        <input id="field" placeholder="e.g. North 80" required>
+
+        <label for="length">Bag length</label>
+        <select id="length">
+          <option value="500">500 ft</option>
+          <option value="300">300 ft</option>
+          <option value="Other">Other / unknown</option>
+        </select>
+
+        <label for="location">Location or notes (optional)</label>
+        <input id="location" placeholder="e.g. East end by the lane">
+
+        <button type="submit">＋ Save bag record</button>
+      </form>
+      <button class="secondary" id="gps" type="button">📍 Get my GPS location</button>
+      <p class="hint" id="gpsStatus">GPS is optional. Your browser may ask for location permission.</p>
+    </section>
+
+    <section class="card">
+      <h2>Recent bags</h2>
+      <div id="records"><p class="empty">No bags recorded yet.</p></div>
+      <button class="secondary" id="export" type="button">Export records (CSV)</button>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = "grainBagTrackerStarter";
+    let bags = [];
+    let gpsLocation = "";
+
+    try {
+      bags = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    } catch (e) {
+      bags = [];
+    }
+
+    const $ = id => document.getElementById(id);
+
+    function render() {
+      $("total").textContent = bags.length;
+      $("fields").textContent = new Set(bags.map(b => b.field.toLowerCase())).size;
+
+      if (!bags.length) {
+        $("records").innerHTML = '<p class="empty">No bags recorded yet.</p>';
+        return;
+      }
+
+      $("records").innerHTML = bags.slice().reverse().map(b => `
+        <div class="bag">
+          <strong>${escapeHTML(b.field)}</strong> · ${escapeHTML(b.length)} ft
+          <small>${escapeHTML(b.crew)} · ${escapeHTML(b.location || "No location notes")}</small>
+          <small>${escapeHTML(b.time)}${b.gps ? " · GPS: " + escapeHTML(b.gps) : ""}</small>
+        </div>
+      `).join("");
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;",
+        '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    $("bagForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const field = $("field").value.trim();
+      if (!field) return;
+
+      bags.push({
+        crew: $("crew").value,
+        field,
+        length: $("length").value,
+        location: $("location").value.trim(),
+        gps: gpsLocation,
+        time: new Date().toLocaleString()
+      });
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(bags));
+      } catch (e) {
+        alert("Could not save on this device. Please export your records.");
+      }
+
+      $("field").value = "";
+      $("location").value = "";
+      gpsLocation = "";
+      $("gpsStatus").textContent = "GPS is optional. Your browser may ask for location permission.";
+      render();
+      alert("Bag record saved on this device!");
+    });
+
+    $("gps").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        $("gpsStatus").textContent = "GPS is not available in this browser.";
+        return;
+      }
+      $("gpsStatus").textContent = "Getting location...";
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          gpsLocation = pos.coords.latitude.toFixed(6) + ", " +
+            pos.coords.longitude.toFixed(6);
+          $("gpsStatus").textContent = "Location captured: " + gpsLocation;
+        },
+        () => {
+          $("gpsStatus").textContent = "Location unavailable. Check browser permissions.";
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+
+    $("export").addEventListener("click", () => {
+      if (!bags.length) {
+        alert("No records to export yet.");
+        return;
+      }
+      const cols = ["crew", "field", "length", "location", "gps", "time"];
+      const csv = [cols.join(","), ...bags.map(b =>
+        cols.map(c => '"' + String(b[c] ?? "").replace(/"/g, '""') + '"').join(",")
+      )].join("\r\n");
+      const url = URL.createObjectURL(new Blob([csv], {type: "text/csv"}));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "grain-bag-records.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    render();
+  </script>
+</body>
+</html>
