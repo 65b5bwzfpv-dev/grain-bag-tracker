@@ -1,714 +1,407 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#244b32">
 <title>Grain Bag Tracker</title>
 <style>
+:root{--g:#244b32;--p:#e7eee5;--bg:#f3f5f0;--ink:#202820}
 *{box-sizing:border-box}
-:root{--green:#244b32;--pale:#e7eee5;--ink:#202820;--muted:#637063}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f3f5f0;color:var(--ink)}
-header{background:var(--green);color:white;padding:23px 18px}
-header h1{margin:0 0 6px;font-size:25px}
-header p{margin:0;opacity:.88}
-main{max-width:850px;margin:auto;padding:15px}
-.card{background:white;border-radius:16px;padding:17px;margin-bottom:15px;box-shadow:0 2px 8px #0000000c}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+header{background:var(--g);color:white;padding:22px 16px}
+header h1{margin:0 0 5px;font-size:25px}
+main{max-width:800px;margin:auto;padding:12px}
+.card{background:white;padding:16px;border-radius:14px;margin-bottom:13px;box-shadow:0 2px 7px #0000000c}
 h2{font-size:20px;margin:0 0 12px}
-h3{font-size:17px;margin:0 0 8px}
-label{display:block;font-weight:650;margin:12px 0 6px}
-input,select,button{width:100%;font:inherit;border-radius:10px;padding:12px}
-input,select{border:1px solid #cbd3c8;background:white;color:var(--ink);min-width:0}
-button{border:0;background:var(--green);color:white;font-weight:700;cursor:pointer;margin-top:10px;min-height:45px}
-button.secondary{background:var(--pale);color:var(--green)}
-button.danger{background:#a83232;color:white}
-button.small{width:auto;min-height:36px;padding:7px 10px;margin:8px 5px 0 0;font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.stat{background:var(--pale);border-radius:12px;padding:14px;min-width:0}
-.stat span{display:block;font-size:13px;color:#4b5d4c}
-.stat strong{display:block;font-size:clamp(24px,6vw,32px);margin-top:5px;overflow-wrap:anywhere}
-.hint{color:var(--muted);font-size:13px;line-height:1.5}
-.field-card{border:1px solid #dfe6dc;border-radius:12px;padding:13px;margin-top:10px}
-.field-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.field-head strong{font-size:17px;overflow-wrap:anywhere}
-.field-number{font-size:20px;font-weight:800;white-space:nowrap}
-.meter{background:#e7eee5;height:8px;border-radius:20px;overflow:hidden;margin:9px 0 5px}
-.meter>div{background:#477b4d;height:100%}
-.muted{color:var(--muted);font-size:13px;line-height:1.5}
-.pill{display:inline-block;border-radius:6px;padding:3px 7px;font-size:12px;font-weight:700;background:var(--pale);margin:3px 3px 0 0}
-.pill.high,.pill.urgent{background:#fbe4df;color:#922c20}
-.pill.partial{background:#fff0cc;color:#79540a}
-.pill.done{background:#dcefe0;color:#245b31}
-.bag-row{border-top:1px solid #e5e9e3;padding:13px 0;overflow-wrap:anywhere}
-.bag-row:first-child{border-top:0}
-.bag-row small{display:block;color:#687568;margin-top:4px;line-height:1.5}
-.empty{color:#687568;text-align:center;padding:20px 0}
-.bag-entry{border:1px solid #dfe6dc;border-radius:12px;padding:12px;margin-top:10px;background:#fbfcfa}
-.bag-entry-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.bag-entry-head strong{font-size:15px}
-.bag-entry .grid{gap:0 10px}
-.bag-entry label{font-size:13px}
-.partial-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
-.fraction{margin:0;background:#eef2eb;color:var(--green);border:2px solid transparent;padding:11px 4px}
-.fraction.selected{background:var(--green);color:white;border-color:var(--green)}
+label{display:block;font-weight:650;margin:12px 0 5px}
+input,select,button{width:100%;font:inherit;padding:12px;border-radius:9px}
+input,select{border:1px solid #cbd3c8;background:white;color:var(--ink)}
+button{border:0;background:var(--g);color:white;font-weight:700;margin-top:9px;min-height:44px}
+button.secondary{background:var(--p);color:var(--g)}
+button.danger{background:#a83232}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{background:var(--p);padding:12px;border-radius:10px}
+.stat span{display:block;font-size:13px}
+.stat strong{display:block;font-size:25px;margin-top:5px}
+.hint,.muted{font-size:13px;color:#637063;line-height:1.5}
+.record{padding:12px 0;border-top:1px solid #e1e7df}
+.record:first-child{border-top:0}
+.record strong{font-size:16px}
+.record small{display:block;color:#637063;line-height:1.5;margin-top:4px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.actions button{width:auto;padding:8px 12px;min-height:36px;font-size:14px}
 .hidden{display:none!important}
-.top-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.top-actions button{margin-top:0}
-@media(max-width:450px){main{padding:10px}.card{padding:14px}.grid{grid-template-columns:1fr}.field-head{align-items:center}}
-@media print{
-body{background:white}
-header{background:white!important;color:#173d25!important;padding:0 0 12px}
-main{max-width:none;padding:0}
-.no-print,form,#entryCard,#filtersCard,#gps{display:none!important}
-.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
-.field-card{break-inside:avoid}
-}
+#loginCard{max-width:520px;margin:18px auto}
+@media(max-width:450px){.grid{grid-template-columns:1fr}main{padding:9px}.card{padding:13px}}
 </style>
 </head>
 <body>
-<header>
-<h1>🌽 Grain Bag Tracker</h1>
-<p>Track every bag, field, and crew.</p>
-</header>
+<header><h1>🌽 Grain Bag Tracker</h1><div>Track bags, fields and crews.</div></header>
 
-<main>
+<section class="card" id="loginCard">
+<h2>Shared crew sign-in</h2>
+<p class="hint">Sign in using the shared account created in Supabase.</p>
+<label for="email">Account email</label>
+<input id="email" type="email" autocomplete="username" placeholder="Shared account email">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Shared account password">
+<button id="loginBtn">Sign in</button>
+<p id="loginStatus" class="hint">Enter your account details to connect.</p>
+</section>
+
+<main id="app" class="hidden">
+<section class="card">
+<strong id="cloudStatus">Connecting...</strong>
+<button class="secondary" id="refreshBtn">Refresh shared records</button>
+<button class="secondary" id="logoutBtn">Sign out</button>
+</section>
+
 <section class="card">
 <h2>Harvest overview</h2>
 <div class="stats">
-<div class="stat"><span>Bag equivalents</span><strong id="totalEquivalent">0</strong></div>
-<div class="stat"><span>Estimated bushels</span><strong id="totalBushels">0</strong></div>
+<div class="stat"><span>Bag equivalents</span><strong id="totalBags">0</strong></div>
+<div class="stat"><span>Estimated bushels</span><strong id="totalBu">0</strong></div>
 <div class="stat"><span>Fields recorded</span><strong id="fieldCount">0</strong></div>
-<div class="stat"><span>High-priority bags</span><strong id="attentionCount">0</strong></div>
+<div class="stat"><span>High-priority bags</span><strong id="highCount">0</strong></div>
 </div>
-<p class="hint">Partial bags count as ¼, ½, or ¾ of a bag. Bushels and moisture are recorded separately for each bag.</p>
-</section>
-
-<section class="card">
-<h2>Field progress</h2>
-<div id="fieldSummary"><p class="empty">No bags recorded yet.</p></div>
 </section>
 
 <section class="card" id="entryCard">
-<h2 id="formTitle">Add bags for a field</h2>
-<p class="hint">Enter the shared field details once, then enter bushels and moisture for each bag below.</p>
-
+<h2 id="formTitle">Add a bag</h2>
 <form id="bagForm">
+<input type="hidden" id="editingId">
 <div class="grid">
-<div>
-<label for="crew">Crew</label>
-<select id="crew">
-<option>Crew 1</option><option>Crew 2</option><option>Crew 3</option>
-</select>
+<div><label for="crew">Crew</label><select id="crew"><option>Crew 1</option><option>Crew 2</option><option>Crew 3</option></select></div>
+<div><label for="crop">Crop</label><select id="crop"><option>Corn</option><option>Soybeans</option><option>Wheat</option><option>Other</option></select></div>
 </div>
-<div>
-<label for="crop">Crop type</label>
-<select id="crop">
-<option value="Corn">Corn</option>
-<option value="Soybeans">Soybeans</option>
-<option value="Wheat">Wheat</option>
-<option value="Other">Other</option>
-</select>
-</div>
-</div>
-
-<label for="field">Field name</label>
-<input id="field" placeholder="e.g. North 80" required>
-
+<label for="field">Field name</label><input id="field" required placeholder="e.g. North 80">
 <div class="grid">
-<div>
-<label for="length">Bag length</label>
-<select id="length">
-<option value="500">500 ft</option>
-<option value="300">300 ft</option>
-<option value="Other">Other / unknown</option>
-</select>
+<div><label for="date">Date bagged</label><input id="date" type="date" required></div>
+<div><label for="length">Bag length</label><select id="length"><option value="500">500 ft</option><option value="300">300 ft</option><option value="Other">Other / unknown</option></select></div>
 </div>
-<div>
-<label for="date">Date put down</label>
-<input id="date" type="date" required>
-</div>
-</div>
-
 <div class="grid">
-<div>
-<label for="fullCount">Number of full bags</label>
-<input id="fullCount" type="number" min="0" max="100" step="1" value="1" required>
+<div><label for="fraction">Bag size</label><select id="fraction"><option value="1">Full bag</option><option value=".75">¾ bag</option><option value=".5">½ bag</option><option value=".25">¼ bag</option></select></div>
+<div><label for="bushels">Estimated bushels</label><input id="bushels" type="number" min="0" step="any" placeholder="Optional"></div>
 </div>
-<div>
-<label for="partialCount">Partial bags to add</label>
-<select id="partialCount">
-<option value="0">None</option>
-<option value="1">1 partial bag</option>
-<option value="2">2 partial bags</option>
-<option value="3">3 partial bags</option>
-</select>
-</div>
-</div>
-
-<label>Partial bag size</label>
-<div class="partial-options" id="fractionOptions">
-<button type="button" class="fraction" data-fraction="0.25">¼ bag</button>
-<button type="button" class="fraction selected" data-fraction="0.5">½ bag</button>
-<button type="button" class="fraction" data-fraction="0.75">¾ bag</button>
-<button type="button" class="fraction" data-fraction="1">Full</button>
-</div>
-<p class="hint">Choose the size for your partial bags. If you select Full, those entries count as full bags.</p>
-
 <div class="grid">
-<div>
-<label for="priority">Priority</label>
-<select id="priority">
-<option value="Normal">Normal</option>
-<option value="High">High</option>
-<option value="Urgent">Urgent</option>
-<option value="Low">Low</option>
-</select>
+<div><label for="moisture">Moisture (%)</label><input id="moisture" type="number" min="0" max="100" step="any" placeholder="Optional"></div>
+<div><label for="priority">Priority</label><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option><option>Low</option></select></div>
 </div>
-<div>
-<label for="status">Bag status</label>
-<select id="status">
-<option value="Filling">Filling</option>
-<option value="Finished" selected>Finished</option>
-<option value="Being emptied">Being emptied</option>
-<option value="Empty">Empty</option>
-</select>
+<div class="grid">
+<div><label for="status">Status</label><select id="status"><option>Finished</option><option>Filling</option><option>Being emptied</option><option>Empty</option></select></div>
+<div><label for="gps">GPS coordinates (optional)</label><input id="gps" placeholder="Optional"></div>
 </div>
-</div>
-
-<label for="location">Location or notes (optional)</label>
-<input id="location" placeholder="e.g. East end by the lane">
-
-<div id="bagDetails"></div>
-<button id="buildDetails" class="secondary" type="button">↻ Update bag details</button>
-<button type="submit">＋ Save all bags for this field</button>
-<button id="cancelEdit" class="secondary hidden" type="button">Cancel editing</button>
+<label for="notes">Location or notes (optional)</label><input id="notes" placeholder="e.g. East end by the lane">
+<button type="submit" id="saveBtn">Save bag</button>
+<button type="button" class="secondary hidden" id="cancelBtn">Cancel editing</button>
 </form>
-
-<button class="secondary" id="gps" type="button">📍 Get my GPS location</button>
-<p class="hint" id="gpsStatus">GPS is optional. Allow location access if prompted.</p>
-</section>
-
-<section class="card no-print" id="filtersCard">
-<h2>Find bags</h2>
-<label for="search">Search field, bag ID, or notes</label>
-<input id="search" placeholder="Start typing to search...">
-
-<div class="grid">
-<div>
-<label for="cropFilter">Crop</label>
-<select id="cropFilter">
-<option value="">All crops</option>
-<option>Corn</option><option>Soybeans</option><option>Wheat</option><option>Other</option>
-</select>
-</div>
-<div>
-<label for="priorityFilter">Priority</label>
-<select id="priorityFilter">
-<option value="">All priorities</option>
-<option>Urgent</option><option>High</option><option>Normal</option><option>Low</option>
-</select>
-</div>
-</div>
-
-<label for="crewFilter">Crew</label>
-<select id="crewFilter">
-<option value="">All crews</option>
-<option>Crew 1</option><option>Crew 2</option><option>Crew 3</option>
-</select>
-<button id="clearFilters" class="secondary" type="button">Clear filters</button>
+<button class="secondary" id="gpsBtn">📍 Get my GPS location</button>
+<p class="hint">Each record represents one bag. You can add multiple bags for the same field one at a time.</p>
 </section>
 
 <section class="card">
-<div class="field-head">
 <h2>Bag records</h2>
-<span class="muted" id="visibleCount"></span>
+<label for="search">Search fields or notes</label><input id="search" placeholder="Type a field, crew, crop or note">
+<div class="grid">
+<div><label for="crewFilter">Filter by crew</label><select id="crewFilter"><option value="">All crews</option><option>Crew 1</option><option>Crew 2</option><option>Crew 3</option></select></div>
+<div><label for="cropFilter">Filter by crop</label><select id="cropFilter"><option value="">All crops</option><option>Corn</option><option>Soybeans</option><option>Wheat</option><option>Other</option></select></div>
 </div>
-<div id="records"><p class="empty">No bags recorded yet.</p></div>
-<div class="top-actions no-print">
-<button class="secondary" id="exportCsv" type="button">Export CSV</button>
-<button id="exportPdf" type="button">Export / Print PDF</button>
-</div>
-<p class="hint no-print">On iPad, use the print sheet to save or share a PDF. Records are stored on this device, not automatically shared with other crews.</p>
+<div id="records"><p class="muted">No records yet.</p></div>
+<button class="secondary" id="exportBtn">Export CSV backup</button>
 </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const storageKey = "grainBagTrackerStarter";
+/* Add your Supabase Project URL and publishable key below.
+   Never put a service_role or secret key in this file. */
+const SUPABASE_URL = "PASTE_PROJECT_URL_HERE";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_PUBLISHABLE_KEY_HERE";
+
 const $ = id => document.getElementById(id);
-let bags = [];
-let gpsLocation = "";
-let editingId = null;
-let chosenFraction = 0.5;
+const STORAGE_KEY = "grainBagTrackerStarter";
+let client = null;
+let records = [];
+let loggedIn = false;
+let busy = false;
+let lastSync = 0;
 
-function localDateString(date = new Date()) {
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+function today(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-$("date").value = localDateString();
+$("date").value=today();
 
-try {
-  const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-  bags = Array.isArray(saved) ? saved : [];
-} catch(e) {
-  bags = [];
+function loadLocal(){
+  try{
+    const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+    records=Array.isArray(x)?x:[];
+  }catch(e){records=[];}
 }
-
-// Keep existing records and add defaults for newer fields.
-bags = bags.map((b,i) => ({
-  ...b,
-  id: b.id || `OLD-${i+1}`,
-  crop: b.crop || "Unknown",
-  bushels: b.bushels ?? "",
-  date: b.date || "",
-  moisture: b.moisture ?? "",
-  quantity: Number(b.quantity) > 0 ? Number(b.quantity) : 1,
-  fractionLabel: b.fractionLabel || (Number(b.quantity)===0.25?"¼":Number(b.quantity)===0.5?"½":Number(b.quantity)===0.75?"¾":"Full"),
-  priority: b.priority || "Normal",
-  status: b.status || "Finished",
-  fillType: b.fillType || (Number(b.quantity)<1?"Partial":"Full"),
-  fillPercent: b.fillPercent ?? ""
-}));
-
-function persist() {
-  try {
-    localStorage.setItem(storageKey,JSON.stringify(bags));
-    return true;
-  } catch(e) {
-    alert("Could not save on this device. Export a CSV backup and try again.");
-    return false;
-  }
+function saveLocal(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records));return true;}
+  catch(e){alert("Could not save on this device. Export a CSV backup.");return false;}
 }
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
+function fractionLabel(n){
+  return n===.25?"¼":n===.5?"½":n===.75?"¾":"Full";
 }
-
-function fmt(value,decimals=1) {
-  if(value===""||value==null||!Number.isFinite(Number(value))) return "Not entered";
-  return Number(value).toLocaleString("en-US",{maximumFractionDigits:decimals});
+function normalize(b){
+  return {
+    id:String(b.id||("BAG-"+Date.now()+"-"+Math.random().toString(36).slice(2,7))),
+    crew:b.crew||"Crew 1",field:b.field||b.field_name||"",
+    crop:b.crop||b.crop_type||"Corn",length:String(b.length||b.bag_length||"500"),
+    date:b.date||b.date_bagged||today(),
+    fraction:Number(b.fraction||b.quantity||b.bag_fraction||1),
+    bushels:b.bushels==null?"":b.bushels,
+    moisture:b.moisture==null?"":b.moisture,
+    priority:b.priority||"Normal",status:b.status||"Finished",
+    notes:b.notes||b.location||b.location_notes||"",
+    gps:b.gps||"",time:b.time||b.entry_time||new Date().toLocaleString()
+  };
 }
-
-function eq(b) {
-  return Number(b.quantity)>0?Number(b.quantity):1;
+function toCloud(b){
+  return {
+    app_id:String(b.id),
+    crew:b.crew||"Crew 1",
+    field_name:b.field||"Unnamed field",
+    crop_type:b.crop||"Corn",
+    bag_length:String(b.length||"Other"),
+    bag_fraction:Number(b.fraction)||1,
+    fraction_label:fractionLabel(Number(b.fraction)||1),
+    fill_type:Number(b.fraction)<1?"Partial":"Full",
+    fill_percent:"",
+    bushels:b.bushels===""||b.bushels==null?null:Number(b.bushels),
+    moisture:b.moisture===""||b.moisture==null?null:Number(b.moisture),
+    date_bagged:b.date||null,
+    location_notes:b.notes||null,
+    gps:b.gps||null,
+    entry_time:b.time||null,
+    updated_label:new Date().toLocaleString(),
+    priority:b.priority||"Normal",
+    status:b.status||"Finished"
+  };
 }
-
-function effectiveBags(list) {
-  return list.reduce((sum,b)=>sum+eq(b),0);
-}
-
-function bushelTotal(list) {
-  return list.reduce((sum,b)=>sum+(b.bushels!==""&&Number.isFinite(Number(b.bushels))?Number(b.bushels):0),0);
-}
-
-function bagLabel(b) {
-  return b.fractionLabel || (eq(b)===0.25?"¼":eq(b)===0.5?"½":eq(b)===0.75?"¾":"Full");
-}
-
-function render() {
-  $("totalEquivalent").textContent=fmt(effectiveBags(bags),2);
-  $("totalBushels").textContent=Math.round(bushelTotal(bags)).toLocaleString("en-US");
-  $("fieldCount").textContent=new Set(bags.map(b=>String(b.field||"").trim().toLowerCase()).filter(Boolean)).size;
-  $("attentionCount").textContent=bags.filter(b=>["High","Urgent"].includes(b.priority)&&b.status!=="Empty").length;
-
-  const fieldMap=new Map();
-
-  bags.forEach(b=>{
-    const key=String(b.field||"Unnamed field").trim().toLowerCase();
-    if(!fieldMap.has(key))fieldMap.set(key,{name:b.field||"Unnamed field",bags:[],crops:new Set(),crews:new Set()});
-    const f=fieldMap.get(key);
-    f.bags.push(b);
-    f.crops.add(b.crop||"Unknown");
-    f.crews.add(b.crew||"Unknown");
+function fromCloud(r){
+  return normalize({
+    id:r.app_id,crew:r.crew,field:r.field_name,crop:r.crop_type,
+    length:r.bag_length,date:r.date_bagged,fraction:r.bag_fraction,
+    bushels:r.bushels,moisture:r.moisture,priority:r.priority,
+    status:r.status,notes:r.location_notes,gps:r.gps,time:r.entry_time
   });
-
-  const fields=[...fieldMap.values()].sort((a,b)=>a.name.localeCompare(b.name));
-
-  $("fieldSummary").innerHTML=fields.length?fields.map(f=>{
-    const total=effectiveBags(f.bags);
-    const full=f.bags.filter(b=>eq(b)>=1).length;
-    const partial=f.bags.filter(b=>eq(b)<1).length;
-    return `<div class="field-card">
-      <div class="field-head">
-        <strong>${escapeHTML(f.name)}</strong>
-        <span class="field-number">${fmt(total,2)} bags</span>
-      </div>
-      <div class="muted">${escapeHTML([...f.crops].join(", "))} · ${escapeHTML([...f.crews].join(", "))}</div>
-      <div class="meter"><div style="width:${Math.min(100,(total%1)*100)}%"></div></div>
-      <div class="muted">${full} full bag record(s) · ${partial} partial bag record(s) · ${Math.round(bushelTotal(f.bags)).toLocaleString("en-US")} estimated bu</div>
-    </div>`;
-  }).join(""):'<p class="empty">No bags recorded yet.</p>';
-
-  const query=$("search").value.trim().toLowerCase();
-  const cf=$("cropFilter").value;
-  const pf=$("priorityFilter").value;
-  const crf=$("crewFilter").value;
-
-  const filtered=bags.filter(b=>{
-    const searchable=[b.id,b.field,b.location,b.crew,b.crop,b.status].join(" ").toLowerCase();
-    return (!query||searchable.includes(query))&&(!cf||b.crop===cf)&&(!pf||b.priority===pf)&&(!crf||b.crew===crf);
-  });
-
-  $("visibleCount").textContent=`${filtered.length} record(s)`;
-
-  $("records").innerHTML=filtered.length?filtered.slice().reverse().map(b=>{
-    const pc=["High","Urgent"].includes(b.priority)?String(b.priority).toLowerCase():"";
-    return `<article class="bag-row">
-      <strong>${escapeHTML(b.field||"Unnamed field")}</strong>
-      <span class="pill">${escapeHTML(b.id)}</span>
-      <span class="pill">${escapeHTML(b.crop||"Unknown")}</span>
-      <span class="pill ${eq(b)<1?"partial":""}">${escapeHTML(bagLabel(b))} bag</span>
-      <span class="pill ${pc}">${escapeHTML(b.priority||"Normal")}</span>
-      <span class="pill ${b.status==="Empty"?"done":""}">${escapeHTML(b.status||"Finished")}</span>
-      <small>${escapeHTML(b.crew)} · ${escapeHTML(b.length)} ft · Put down: ${escapeHTML(b.date||"Not entered")}</small>
-      <small>Bushels: ${escapeHTML(fmt(b.bushels))} · Moisture: ${b.moisture===""?"Not entered":escapeHTML(b.moisture)+"%"}</small>
-      <small>${escapeHTML(b.location||"No location notes")}${b.gps?" · GPS: "+escapeHTML(b.gps):""}</small>
-      <small>Entered: ${escapeHTML(b.time||"Unknown")}${b.updated?" · Updated: "+escapeHTML(b.updated):""}</small>
-      <div class="record-actions no-print">
-        <button class="small secondary" type="button" data-edit="${escapeHTML(b.id)}">Edit</button>
-        <button class="small danger" type="button" data-delete="${escapeHTML(b.id)}">Delete</button>
-      </div>
-    </article>`;
-  }).join(""):`<p class="empty">${bags.length?"No bags match these filters.":"No bags recorded yet."}</p>`;
 }
-
-function makeDetailRows() {
-  const fullCount=Math.max(0,Math.min(100,parseInt($("fullCount").value,10)||0));
-  const partialCount=Math.max(0,Math.min(3,parseInt($("partialCount").value,10)||0));
-  const count=fullCount+partialCount;
-
-  if(!count) {
-    $("bagDetails").innerHTML='<p class="hint">Enter at least one full or partial bag.</p>';
+async function syncUpsert(b){
+  const {error}=await client.from("bag_records").upsert(toCloud(b),{onConflict:"app_id"});
+  if(error)throw error;
+}
+async function syncAll(){
+  if(!loggedIn||busy)return;
+  busy=true;
+  $("cloudStatus").textContent="Syncing shared records...";
+  try{
+    const {data,error}=await client.from("bag_records").select("*").order("created_at",{ascending:true});
+    if(error)throw error;
+    const remote=(data||[]).filter(x=>x.app_id).map(fromCloud);
+    const ids=new Set(remote.map(x=>String(x.id)));
+    const localOnly=records.filter(x=>!ids.has(String(x.id)));
+    if(localOnly.length){
+      const {error:e}=await client.from("bag_records").upsert(localOnly.map(toCloud),{onConflict:"app_id"});
+      if(e)throw e;
+      const {data:d,error:ee}=await client.from("bag_records").select("*").order("created_at",{ascending:true});
+      if(ee)throw ee;
+      records=(d||[]).filter(x=>x.app_id).map(fromCloud);
+    }else{
+      records=remote;
+    }
+    saveLocal();render();
+    $("cloudStatus").textContent="✓ Shared and synced · "+records.length+" bag records";
+    lastSync=Date.now();
+  }catch(e){
+    $("cloudStatus").textContent="Sync error: "+e.message;
+  }finally{busy=false;}
+}
+async function signIn(){
+  const url=SUPABASE_URL.trim(),key=SUPABASE_PUBLISHABLE_KEY.trim();
+  if(!url.startsWith("https://")||key.includes("PASTE_")||!key){
+    $("loginStatus").textContent="The Project URL and publishable key still need to be added to index.html.";
     return;
   }
-
-  const existingRows=[...$("bagDetails").querySelectorAll(".bag-entry")].map(row=>({
-    bushels:row.querySelector(".entry-bushels").value,
-    moisture:row.querySelector(".entry-moisture").value
-  }));
-
-  let html="";
-
-  for(let i=0;i<count;i++) {
-    const isPartial=i>=fullCount;
-    const old=existingRows[i]||{};
-    const label=isPartial?(chosenFraction===1?"Full":chosenFraction===0.25?"¼":chosenFraction===0.5?"½":"¾")+" bag":"Full bag";
-
-    html+=`<div class="bag-entry">
-      <div class="bag-entry-head">
-        <strong>Bag ${i+1} · ${label}</strong>
-        <span class="muted">${isPartial?"Partial entry":"Full entry"}</span>
-      </div>
-      <div class="grid">
-        <div>
-          <label for="bushels-${i}">Estimated bushels</label>
-          <input class="entry-bushels" id="bushels-${i}" type="number" min="0" step="any" placeholder="Bushels for this bag" value="${escapeHTML(old.bushels||"")}">
-        </div>
-        <div>
-          <label for="moisture-${i}">Moisture (%)</label>
-          <input class="entry-moisture" id="moisture-${i}" type="number" min="0" max="100" step="0.1" placeholder="e.g. 15.2" value="${escapeHTML(old.moisture||"")}">
-        </div>
-      </div>
-    </div>`;
-  }
-
-  $("bagDetails").innerHTML=html;
-}
-
-$("buildDetails").addEventListener("click",makeDetailRows);
-$("fullCount").addEventListener("change",makeDetailRows);
-$("partialCount").addEventListener("change",makeDetailRows);
-
-$("fractionOptions").addEventListener("click",event=>{
-  const btn=event.target.closest("[data-fraction]");
-  if(!btn)return;
-  chosenFraction=Number(btn.dataset.fraction);
-  $("fractionOptions").querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b===btn));
-  makeDetailRows();
-});
-
-function resetForm() {
-  editingId=null;
-  gpsLocation="";
-  $("bagForm").reset();
-  $("date").value=localDateString();
-  $("fullCount").value="1";
-  $("partialCount").value="0";
-  chosenFraction=0.5;
-  $("fractionOptions").querySelectorAll("button").forEach(b=>b.classList.toggle("selected",Number(b.dataset.fraction)===chosenFraction));
-  $("formTitle").textContent="Add bags for a field";
-  $("cancelEdit").classList.add("hidden");
-  $("gpsStatus").textContent="GPS is optional. Allow location access if prompted.";
-  makeDetailRows();
-}
-
-$("bagForm").addEventListener("submit",event=>{
-  event.preventDefault();
-
-  const field=$("field").value.trim();
-  if(!field){alert("Please enter a field name.");return;}
-
-  const fullCount=Math.max(0,parseInt($("fullCount").value,10)||0);
-  const partialCount=Math.max(0,parseInt($("partialCount").value,10)||0);
-  const rows=[...$("bagDetails").querySelectorAll(".bag-entry")];
-
-  if(rows.length!==fullCount+partialCount||rows.length===0) {
-    alert("Please update bag details and enter at least one bag.");
+  if(!window.supabase){
+    $("loginStatus").textContent="Supabase could not load. Check your internet connection.";
     return;
   }
-
-  const newRecords=[];
-  const batchTime=Date.now();
-
-  for(let i=0;i<rows.length;i++) {
-    const bushels=rows[i].querySelector(".entry-bushels").value;
-    const moisture=rows[i].querySelector(".entry-moisture").value;
-
-    if(bushels!==""&&Number(bushels)<0) {
-      alert(`Bag ${i+1}: bushels cannot be negative.`);
-      return;
-    }
-
-    if(moisture!==""&&(Number(moisture)<0||Number(moisture)>100)) {
-      alert(`Bag ${i+1}: moisture must be between 0 and 100%.`);
-      return;
-    }
-
-    const partial=i>=fullCount;
-    const quantity=partial?chosenFraction:1;
-    const fractionLabel=quantity===0.25?"¼":quantity===0.5?"½":quantity===0.75?"¾":"Full";
-
-    newRecords.push({
-      id:`BAG-${batchTime.toString(36).toUpperCase()}-${i+1}`,
-      crew:$("crew").value,
-      field,
-      crop:$("crop").value,
-      length:$("length").value,
-      date:$("date").value,
-      bushels:bushels===""?"":Number(bushels),
-      moisture:moisture===""?"":Number(moisture),
-      quantity,
-      fractionLabel,
-      fillType:quantity<1?"Partial":"Full",
-      fillPercent:"",
-      priority:$("priority").value,
-      status:$("status").value,
-      location:$("location").value.trim(),
-      gps:gpsLocation,
-      time:new Date().toLocaleString(),
-      updated:""
+  $("loginBtn").disabled=true;
+  $("loginStatus").textContent="Signing in...";
+  try{
+    client=window.supabase.createClient(url,key);
+    const {error}=await client.auth.signInWithPassword({
+      email:$("email").value.trim(),password:$("password").value
     });
-  }
-
-  if(editingId) {
-    const index=bags.findIndex(b=>b.id===editingId);
-    if(index>=0) {
-      newRecords[0].id=editingId;
-      newRecords[0].time=bags[index].time||newRecords[0].time;
-      newRecords[0].updated=new Date().toLocaleString();
-      bags[index]=newRecords[0];
-    }
-  } else {
-    bags.push(...newRecords);
-  }
-
-  if(!persist())return;
-
-  const message=editingId?"Bag record updated.":`${newRecords.length} bag record(s) saved for ${field}.`;
-  resetForm();
-  render();
-  alert(message);
+    if(error)throw error;
+    loggedIn=true;
+    $("loginCard").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    await syncAll();
+    if(!window.bagSyncTimer)window.bagSyncTimer=setInterval(syncAll,15000);
+  }catch(e){
+    $("loginStatus").textContent="Sign-in failed: "+e.message;
+  }finally{$("loginBtn").disabled=false;}
+}
+$("loginBtn").addEventListener("click",signIn);
+["email","password"].forEach(id=>$(id).addEventListener("keydown",e=>{
+  if(e.key==="Enter")signIn();
+}));
+$("logoutBtn").addEventListener("click",async()=>{
+  if(client)await client.auth.signOut();
+  loggedIn=false;
+  $("app").classList.add("hidden");
+  $("loginCard").classList.remove("hidden");
+  $("loginStatus").textContent="Signed out.";
 });
+$("refreshBtn").addEventListener("click",syncAll);
 
-$("cancelEdit").addEventListener("click",resetForm);
+function escapeHTML(v){
+  return String(v==null?"":v).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function bagCount(b){return Number(b.fraction)||1;}
+function render(){
+  const total=records.reduce((s,b)=>s+bagCount(b),0);
+  const bushels=records.reduce((s,b)=>s+(b.bushels===""?0:Number(b.bushels)||0),0);
+  $("totalBags").textContent=total.toLocaleString("en-US",{maximumFractionDigits:2});
+  $("totalBu").textContent=Math.round(bushels).toLocaleString("en-US");
+  $("fieldCount").textContent=new Set(records.map(b=>b.field.trim().toLowerCase()).filter(Boolean)).size;
+  $("highCount").textContent=records.filter(b=>["High","Urgent"].includes(b.priority)&&b.status!=="Empty").length;
 
-$("records").addEventListener("click",event=>{
-  const eb=event.target.closest("[data-edit]");
-  const db=event.target.closest("[data-delete]");
+  const term=$("search").value.trim().toLowerCase();
+  const crew=$("crewFilter").value,crop=$("cropFilter").value;
+  const shown=records.filter(b=>
+    (!term||[b.field,b.crew,b.crop,b.notes,b.status].join(" ").toLowerCase().includes(term))&&
+    (!crew||b.crew===crew)&&(!crop||b.crop===crop)
+  ).slice().reverse();
 
-  if(eb) {
-    const b=bags.find(x=>x.id===eb.dataset.edit);
-    if(!b)return;
-
-    editingId=b.id;
-    $("crew").value=b.crew||"Crew 1";
-    $("field").value=b.field||"";
-    $("crop").value=["Corn","Soybeans","Wheat","Other"].includes(b.crop)?b.crop:"Other";
-    $("length").value=["500","300","Other"].includes(String(b.length))?String(b.length):"Other";
-    $("date").value=b.date||localDateString();
-    $("fullCount").value=eq(b)>=1?"1":"0";
-    $("partialCount").value=eq(b)<1?"1":"0";
-    chosenFraction=eq(b)<1?eq(b):0.5;
-
-    $("fractionOptions").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",Number(x.dataset.fraction)===chosenFraction));
-    $("priority").value=b.priority||"Normal";
-    $("status").value=b.status||"Finished";
-    $("location").value=b.location||"";
-    gpsLocation=b.gps||"";
-
-    makeDetailRows();
-
-    const row=$("bagDetails").querySelector(".bag-entry");
-    if(row) {
-      row.querySelector(".entry-bushels").value=b.bushels??"";
-      row.querySelector(".entry-moisture").value=b.moisture??"";
-    }
-
-    $("formTitle").textContent="Edit bag "+b.id;
-    $("cancelEdit").classList.remove("hidden");
-    $("entryCard").scrollIntoView({behavior:"smooth",block:"start"});
-  }
-
-  if(db) {
-    const b=bags.find(x=>x.id===db.dataset.delete);
-    if(!b)return;
-    if(!confirm(`Delete ${b.id} from ${b.field}? This cannot be undone.`))return;
-
-    bags=bags.filter(x=>x.id!==b.id);
-    if(editingId===b.id)resetForm();
-    if(persist())render();
-  }
-});
-
-$("gps").addEventListener("click",()=>{
-  if(!navigator.geolocation) {
-    $("gpsStatus").textContent="GPS is not available in this browser.";
+  if(!shown.length){
+    $("records").innerHTML='<p class="muted">No matching bag records.</p>';
     return;
   }
-
-  $("gpsStatus").textContent="Getting location...";
-
-  navigator.geolocation.getCurrentPosition(pos=>{
-    gpsLocation=pos.coords.latitude.toFixed(6)+", "+pos.coords.longitude.toFixed(6);
-    $("gpsStatus").textContent="Location captured: "+gpsLocation;
-  },()=>{
-    $("gpsStatus").textContent="Location unavailable. Check browser permissions.";
-  },{enableHighAccuracy:true,timeout:15000});
-});
-
-["search","cropFilter","priorityFilter","crewFilter"].forEach(id=>
+  $("records").innerHTML=shown.map(b=>`
+    <div class="record">
+      <strong>${escapeHTML(b.field)} · ${escapeHTML(fractionLabel(bagCount(b)))} bag</strong>
+      <small>${escapeHTML(b.crew)} · ${escapeHTML(b.crop)} · ${escapeHTML(b.date)}</small>
+      <small>Bag length: ${escapeHTML(b.length)} ft · Bushels: ${b.bushels===""?"Not entered":escapeHTML(b.bushels)} · Moisture: ${b.moisture===""?"Not entered":escapeHTML(b.moisture)+"%"}</small>
+      <small>Priority: ${escapeHTML(b.priority)} · Status: ${escapeHTML(b.status)}</small>
+      ${b.notes?`<small>Notes: ${escapeHTML(b.notes)}</small>`:""}
+      ${b.gps?`<small>GPS: ${escapeHTML(b.gps)}</small>`:""}
+      <div class="actions">
+        <button class="secondary" data-edit="${escapeHTML(b.id)}">Edit</button>
+        <button class="danger" data-delete="${escapeHTML(b.id)}">Delete</button>
+      </div>
+    </div>`).join("");
+}
+["search","crewFilter","cropFilter"].forEach(id=>
   $(id).addEventListener(id==="search"?"input":"change",render)
 );
 
-$("clearFilters").addEventListener("click",()=>{
-  $("search").value="";
-  $("cropFilter").value="";
-  $("priorityFilter").value="";
-  $("crewFilter").value="";
-  render();
-});
-
-function downloadBlob(content,filename,type) {
-  const blob=new Blob([content],{type});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download=filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-
-$("exportCsv").addEventListener("click",()=>{
-  if(!bags.length) {
-    alert("No records to export yet.");
-    return;
-  }
-
-  const cols=["id","crew","field","crop","length","date","bushels","moisture","quantity","fractionLabel","fillType","priority","status","location","gps","time","updated"];
-  const csv=[cols.join(","),...bags.map(b=>cols.map(c=>'"'+String(b[c]??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");
-  downloadBlob("\uFEFF"+csv,"grain-bag-records.csv","text/csv;charset=utf-8;");
-});
-
-function exportPdf() {
-  if(!bags.length) {
-    alert("No records to export yet.");
-    return;
-  }
-
-  const report=window.open("","_blank");
-
-  if(!report) {
-    alert("Your browser blocked the report window. Allow pop-ups for this site, then try again.");
-    return;
-  }
-
-  const fieldMap=new Map();
-
-  bags.forEach(b=>{
-    const key=String(b.field||"Unnamed field").trim().toLowerCase();
-    if(!fieldMap.has(key))fieldMap.set(key,{name:b.field||"Unnamed field",bags:[]});
-    fieldMap.get(key).bags.push(b);
+$("bagForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const editing=$("editingId").value;
+  const bushels=$("bushels").value;
+  const moisture=$("moisture").value;
+  if(bushels!==""&&Number(bushels)<0){alert("Bushels cannot be negative.");return;}
+  if(moisture!==""&&(Number(moisture)<0||Number(moisture)>100)){alert("Moisture must be between 0 and 100.");return;}
+  const old=records.find(x=>x.id===editing);
+  const b=normalize({
+    id:editing||("BAG-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase()),
+    crew:$("crew").value,field:$("field").value.trim(),crop:$("crop").value,
+    length:$("length").value,date:$("date").value,
+    fraction:Number($("fraction").value),bushels:bushels===""?"":Number(bushels),
+    moisture:moisture===""?"":Number(moisture),priority:$("priority").value,
+    status:$("status").value,notes:$("notes").value.trim(),gps:$("gps").value.trim(),
+    time:old?old.time:new Date().toLocaleString()
   });
-
-  const fields=[...fieldMap.values()].sort((a,b)=>a.name.localeCompare(b.name));
-  const reportTotal=effectiveBags(bags);
-  const totalBu=bushelTotal(bags);
-
-  const fieldHtml=fields.map(f=>{
-    const list=f.bags;
-
-    return `<section class="field">
-      <h2>${escapeHTML(f.name)}</h2>
-      <p>${fmt(effectiveBags(list),2)} bag equivalents · ${Math.round(bushelTotal(list)).toLocaleString("en-US")} estimated bushels · ${escapeHTML([...new Set(list.map(b=>b.crop||"Unknown"))].join(", "))}</p>
-      <table>
-      <thead><tr><th>Bag ID</th><th>Crew</th><th>Crop</th><th>Date put down</th><th>Bag size</th><th>Bushels</th><th>Moisture</th><th>Priority</th><th>Status</th><th>Notes / GPS</th></tr></thead>
-      <tbody>
-      ${list.map(b=>`<tr>
-        <td>${escapeHTML(b.id)}</td>
-        <td>${escapeHTML(b.crew)}</td>
-        <td>${escapeHTML(b.crop||"Unknown")}</td>
-        <td>${escapeHTML(b.date||"")}</td>
-        <td>${escapeHTML(bagLabel(b))}</td>
-        <td>${escapeHTML(b.bushels===""?"":fmt(b.bushels))}</td>
-        <td>${b.moisture===""?"":escapeHTML(b.moisture)+"%"}</td>
-        <td>${escapeHTML(b.priority||"Normal")}</td>
-        <td>${escapeHTML(b.status||"Finished")}</td>
-        <td>${escapeHTML([b.location,b.gps].filter(Boolean).join(" | "))}</td>
-      </tr>`).join("")}
-      </tbody></table>
-    </section>`;
-  }).join("");
-
-  report.document.open();
-  report.document.write(`<!DOCTYPE html>
-  <html lang="en"><head><meta charset="UTF-8">
-  <title>Grain Bag Tracker Report</title>
-  <style>
-  body{font-family:Arial,sans-serif;color:#202820;margin:24px;font-size:11px}
-  h1{color:#244b32;margin:0 0 5px;font-size:24px}
-  h2{font-size:16px;margin:0 0 6px;color:#244b32}
-  .meta{color:#59665a;margin-bottom:18px}
-  .summary{display:flex;gap:10px;margin:16px 0 22px}
-  .summary div{border:1px solid #cbd3c8;padding:10px;flex:1;border-radius:6px}
-  .summary strong{display:block;font-size:18px;margin-top:5px}
-  .field{margin:0 0 22px;break-inside:avoid}
-  .field p{margin:0 0 8px}
-  table{width:100%;border-collapse:collapse;font-size:9px}
-  th,td{border:1px solid #cfd6cc;padding:5px;text-align:left;overflow-wrap:anywhere}
-  th{background:#e7eee5}
-  @media print{body{margin:12mm}.field{break-inside:avoid}thead{display:table-header-group}}
-  </style></head><body>
-  <h1>🌽 Grain Bag Tracker</h1>
-  <div class="meta">Report generated ${escapeHTML(new Date().toLocaleString())}</div>
-  <div class="summary">
-    <div>Total bag equivalents<strong>${fmt(reportTotal,2)}</strong></div>
-    <div>Estimated bushels<strong>${Math.round(totalBu).toLocaleString("en-US")}</strong></div>
-    <div>Fields<strong>${fields.length}</strong></div>
-    <div>Priority bags<strong>${bags.filter(b=>["High","Urgent"].includes(b.priority)&&b.status!=="Empty").length}</strong></div>
-  </div>
-  ${fieldHtml}
-  <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
-  </body></html>`);
-
-  report.document.close();
+  if(!b.field){alert("Enter a field name.");return;}
+  if(editing)records=records.map(x=>x.id===editing?b:x);
+  else records.push(b);
+  if(!saveLocal())return;
+  render();
+  resetForm();
+  if(loggedIn){
+    try{await syncUpsert(b);await syncAll();}
+    catch(err){$("cloudStatus").textContent="Saved on this device, but cloud sync failed: "+err.message;}
+  }
+  alert(editing?"Bag updated.":"Bag saved.");
+});
+function resetForm(){
+  $("bagForm").reset();
+  $("editingId").value="";
+  $("date").value=today();
+  $("formTitle").textContent="Add a bag";
+  $("saveBtn").textContent="Save bag";
+  $("cancelBtn").classList.add("hidden");
 }
+$("cancelBtn").addEventListener("click",resetForm);
 
-$("exportPdf").addEventListener("click",exportPdf);
+$("records").addEventListener("click",async e=>{
+  const edit=e.target.closest("[data-edit]");
+  const del=e.target.closest("[data-delete]");
+  if(edit){
+    const b=records.find(x=>x.id===edit.dataset.edit);
+    if(!b)return;
+    $("editingId").value=b.id;
+    $("crew").value=b.crew;$("crop").value=b.crop;
+    $("field").value=b.field;$("date").value=b.date;
+    $("length").value=b.length;$("fraction").value=String(b.fraction);
+    $("bushels").value=b.bushels;$("moisture").value=b.moisture;
+    $("priority").value=b.priority;$("status").value=b.status;
+    $("notes").value=b.notes;$("gps").value=b.gps;
+    $("formTitle").textContent="Edit bag record";
+    $("saveBtn").textContent="Update bag";
+    $("cancelBtn").classList.remove("hidden");
+    $("entryCard").scrollIntoView({behavior:"smooth"});
+  }
+  if(del){
+    const id=del.dataset.delete,b=records.find(x=>x.id===id);
+    if(!b||!confirm("Delete this bag record for "+b.field+"?"))return;
+    records=records.filter(x=>x.id!==id);
+    if(!saveLocal())return;
+    render();
+    if(loggedIn){
+      const {error}=await client.from("bag_records").delete().eq("app_id",String(id));
+      if(error)$("cloudStatus").textContent="Delete sync failed: "+error.message;
+      else await syncAll();
+    }
+  }
+});
 
-makeDetailRows();
+$("gpsBtn").addEventListener("click",()=>{
+  if(!navigator.geolocation){alert("GPS is unavailable in this browser.");return;}
+  $("gpsBtn").textContent="Getting location...";
+  navigator.geolocation.getCurrentPosition(pos=>{
+    $("gps").value=pos.coords.latitude.toFixed(6)+", "+pos.coords.longitude.toFixed(6);
+    $("gpsBtn").textContent="📍 Get my GPS location";
+  },()=>{
+    alert("Could not get GPS. Check location permissions.");
+    $("gpsBtn").textContent="📍 Get my GPS location";
+  },{enableHighAccuracy:true,timeout:15000});
+});
+
+$("exportBtn").addEventListener("click",()=>{
+  if(!records.length){alert("No records to export.");return;}
+  const cols=["id","crew","field","crop","length","date","fraction","bushels","moisture","priority","status","notes","gps","time"];
+  const csv=[cols.join(","),...records.map(b=>cols.map(k=>
+    '"'+String(b[k]??"").replace(/"/g,'""')+'"'
+  ).join(","))].join("\r\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="grain-bag-records.csv";a.click();
+  URL.revokeObjectURL(url);
+});
+
+loadLocal();
+records=records.map(normalize);
+saveLocal();
 render();
 </script>
 </body>
