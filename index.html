@@ -2,144 +2,396 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#244b32">
 <title>Grain Bag Tracker</title>
+
 <style>
-:root{--g:#244b32;--p:#e7eee5;--bg:#f3f5f0;--ink:#202820}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-header{background:var(--g);color:white;padding:22px 16px}
-header h1{margin:0 0 5px;font-size:25px}
-main{max-width:800px;margin:auto;padding:12px}
-.card{background:white;padding:16px;border-radius:14px;margin-bottom:13px;box-shadow:0 2px 7px #0000000c}
-h2{font-size:20px;margin:0 0 12px}
-label{display:block;font-weight:650;margin:12px 0 5px}
-input,select,button{width:100%;font:inherit;padding:12px;border-radius:9px}
-input,select{border:1px solid #cbd3c8;background:white;color:var(--ink)}
-button{border:0;background:var(--g);color:white;font-weight:700;margin-top:9px;min-height:44px}
-button.secondary{background:var(--p);color:var(--g)}
-button.danger{background:#a83232}
-button:disabled{opacity:.5}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{background:var(--p);padding:12px;border-radius:10px}
-.stat span{display:block;font-size:13px}
-.stat strong{display:block;font-size:25px;margin-top:5px}
-.hint,.muted{font-size:13px;color:#637063;line-height:1.5}
-.record{padding:12px 0;border-top:1px solid #e1e7df}
-.record:first-child{border-top:0}
-.record strong{font-size:16px}
-.record small{display:block;color:#637063;line-height:1.5;margin-top:4px}
-.actions{display:flex;gap:7px;flex-wrap:wrap}
-.actions button{width:auto;padding:8px 12px;min-height:36px;font-size:14px}
-.hidden{display:none!important}
-#loginCard{max-width:520px;margin:18px auto}
-hr{border:0;border-top:1px solid #e1e7df;margin:18px 0}
-@media(max-width:450px){.grid{grid-template-columns:1fr}main{padding:9px}.card{padding:13px}}
+:root {
+  --g: #244b32;
+  --p: #e7eee5;
+  --bg: #f3f5f0;
+  --ink: #202820;
+  --muted: #637063;
+  --line: #e1e7df;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding-bottom: calc(85px + env(safe-area-inset-bottom));
+}
+header {
+  background: var(--g);
+  color: white;
+  padding: 20px 16px;
+}
+header h1 { margin: 0 0 5px; font-size: 25px; }
+header p { margin: 0; font-size: 14px; opacity: .9; }
+main { max-width: 800px; margin: auto; padding: 12px; }
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 13px;
+  box-shadow: 0 2px 7px #0000000c;
+}
+h2 { font-size: 20px; margin: 0 0 12px; }
+h3 { font-size: 16px; margin: 0 0 8px; }
+label { display: block; font-weight: 650; margin: 12px 0 5px; }
+input, select, button {
+  width: 100%;
+  font: inherit;
+  padding: 12px;
+  border-radius: 9px;
+}
+input, select {
+  border: 1px solid #cbd3c8;
+  background: white;
+  color: var(--ink);
+  min-height: 44px;
+}
+button {
+  border: 0;
+  background: var(--g);
+  color: white;
+  font-weight: 700;
+  margin-top: 9px;
+  min-height: 44px;
+  cursor: pointer;
+}
+button.secondary { background: var(--p); color: var(--g); }
+button.danger { background: #a83232; color: white; }
+button:disabled { opacity: .5; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.stat { background: var(--p); padding: 12px; border-radius: 10px; }
+.stat span { display: block; font-size: 13px; }
+.stat strong { display: block; font-size: 25px; margin-top: 5px; }
+.hint, .muted { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.record { padding: 13px 0; border-top: 1px solid var(--line); }
+.record:first-child { border-top: 0; }
+.record strong { font-size: 16px; }
+.record small { display: block; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+.actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.actions button { width: auto; padding: 8px 12px; min-height: 36px; font-size: 14px; }
+.hidden { display: none !important; }
+#loginCard { max-width: 520px; margin: 18px auto; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
+
+/* Separate app screens */
+.page { display: none; }
+.page.active { display: block; }
+.page-heading { margin: 4px 3px 14px; }
+.page-heading h2 { font-size: 24px; margin-bottom: 4px; }
+.page-heading p { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* Persistent bottom navigation */
+.bottom-nav {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: white;
+  border-top: 1px solid #d8dfd5;
+  padding: 6px 5px calc(6px + env(safe-area-inset-bottom));
+  box-shadow: 0 -3px 12px #0000000a;
+}
+.nav-btn {
+  background: transparent;
+  color: #687367;
+  border-radius: 10px;
+  margin: 0;
+  padding: 7px 2px;
+  min-height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 650;
+}
+.nav-btn .nav-icon { font-size: 21px; line-height: 1.2; }
+.nav-btn.active { background: var(--p); color: var(--g); }
+.status-line { overflow-wrap: anywhere; }
+.empty-state { padding: 18px 5px; text-align: center; color: var(--muted); }
+@media(max-width: 450px) {
+  .grid { grid-template-columns: 1fr; }
+  main { padding: 9px; }
+  .card { padding: 13px; }
+  header h1 { font-size: 23px; }
+}
 </style>
 </head>
+
 <body>
-<header><h1>🌽 Grain Bag Tracker</h1><div>Track bags, fields and crews.</div></header>
+<header>
+  <h1>🌽 Grain Bag Tracker</h1>
+  <p>Track bags, fields and crews.</p>
+</header>
 
 <section class="card" id="loginCard">
-<h2>Shared crew sign-in</h2>
-<p class="hint">Sign in using the shared account created in Supabase.</p>
-<label for="email">Account email</label>
-<input id="email" type="email" autocomplete="username" placeholder="Shared account email">
-<label for="password">Password</label>
-<input id="password" type="password" autocomplete="current-password" placeholder="Shared account password">
-<button id="loginBtn">Sign in</button>
-<p id="loginStatus" class="hint">Enter your account details to connect.</p>
+  <h2>Shared crew sign-in</h2>
+  <p class="hint">Sign in using the shared account created in Supabase.</p>
+  <label for="email">Account email</label>
+  <input id="email" type="email" autocomplete="username" placeholder="Shared account email">
+  <label for="password">Password</label>
+  <input id="password" type="password" autocomplete="current-password" placeholder="Shared account password">
+  <button id="loginBtn">Sign in</button>
+  <p id="loginStatus" class="hint">Enter your account details to connect.</p>
 </section>
 
 <main id="app" class="hidden">
-<section class="card">
-<strong id="cloudStatus">Connecting...</strong>
-<button class="secondary" id="refreshBtn">Refresh shared records</button>
-<button class="secondary" id="logoutBtn">Sign out</button>
-</section>
 
-<section class="card">
-<h2>Harvest overview</h2>
-<div class="stats">
-<div class="stat"><span>Bag equivalents</span><strong id="totalBags">0</strong></div>
-<div class="stat"><span>Estimated bushels</span><strong id="totalBu">0</strong></div>
-<div class="stat"><span>Fields recorded</span><strong id="fieldCount">0</strong></div>
-<div class="stat"><span>High-priority bags</span><strong id="highCount">0</strong></div>
-</div>
-</section>
+  <!-- Shared connection controls -->
+  <section class="card">
+    <strong id="cloudStatus" class="status-line">Connecting...</strong>
+    <div class="grid">
+      <button class="secondary" id="refreshBtn">↻ Refresh records</button>
+      <button class="secondary" id="logoutBtn">Sign out</button>
+    </div>
+  </section>
 
-<section class="card">
-<h2>Organisations &amp; Fields</h2>
-<p class="hint">Manage farm names and their field lists. All signed-in crews share these settings.</p>
-<label for="orgManage">Select organisation</label>
-<select id="orgManage"></select>
-<label for="newOrg">Add an organisation / farm</label>
-<input id="newOrg" placeholder="e.g. Home Farm">
-<button type="button" id="addOrgBtn">Add organisation</button>
-<button type="button" class="secondary" id="renameOrgBtn">Rename selected organisation</button>
-<button type="button" class="danger" id="deleteOrgBtn">Remove selected organisation</button>
-<hr>
-<label for="newField">Add a field to this organisation</label>
-<input id="newField" placeholder="e.g. North 80">
-<button type="button" id="addFieldBtn">Add field</button>
-<label for="fieldManage">Fields in selected organisation</label>
-<select id="fieldManage"></select>
-<button type="button" class="secondary" id="renameFieldBtn">Rename selected field</button>
-<button type="button" class="danger" id="deleteFieldBtn">Remove selected field</button>
-<p class="hint">A field with existing bag records cannot be removed. Renaming a field updates matching records.</p>
-<p id="settingsStatus" class="hint">Sign in to load shared settings.</p>
-</section>
+  <!-- OVERVIEW PAGE -->
+  <section class="page active" id="page-overview">
+    <div class="page-heading">
+      <h2>Overview</h2>
+      <p>Your harvest at a glance.</p>
+    </div>
 
-<section class="card" id="entryCard">
-<h2 id="formTitle">Add a bag</h2>
-<form id="bagForm">
-<input type="hidden" id="editingId">
-<div class="grid">
-<div><label for="crew">Crew</label><select id="crew"><option>Crew 1</option><option>Crew 2</option><option>Crew 3</option></select></div>
-<div><label for="crop">Crop</label><select id="crop"><option>Corn</option><option>Soybeans</option><option>Wheat</option><option>Other</option></select></div>
-</div>
-<label for="organization">Organisation / Farm</label>
-<select id="organization" required></select>
-<label for="field">Field</label>
-<select id="field" required></select>
-<div class="grid">
-<div><label for="date">Date bagged</label><input id="date" type="date" required></div>
-<div><label for="length">Bag length</label><select id="length"><option value="500">500 ft</option><option value="300">300 ft</option><option value="Other">Other / unknown</option></select></div>
-</div>
-<div class="grid">
-<div><label for="fraction">Bag size</label><select id="fraction"><option value="1">Full bag</option><option value=".75">¾ bag</option><option value=".5">½ bag</option><option value=".25">¼ bag</option></select></div>
-<div><label for="bushels">Estimated bushels</label><input id="bushels" type="number" min="0" step="any" placeholder="Optional"></div>
-</div>
-<div class="grid">
-<div><label for="moisture">Moisture (%)</label><input id="moisture" type="number" min="0" max="100" step="any" placeholder="Optional"></div>
-<div><label for="priority">Priority</label><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option><option>Low</option></select></div>
-</div>
-<div class="grid">
-<div><label for="status">Status</label><select id="status"><option>Finished</option><option>Filling</option><option>Being emptied</option><option>Empty</option></select></div>
-<div><label for="gps">GPS coordinates (optional)</label><input id="gps" placeholder="Optional"></div>
-</div>
-<label for="notes">Location or notes (optional)</label>
-<input id="notes" placeholder="e.g. East end by the lane">
-<button type="submit" id="saveBtn">Save bag</button>
-<button type="button" class="secondary hidden" id="cancelBtn">Cancel editing</button>
-</form>
-<button class="secondary" id="gpsBtn">📍 Get my GPS location</button>
-<p class="hint">Each record represents one bag. Add multiple bags for the same field one at a time.</p>
-</section>
+    <section class="card">
+      <h2>Harvest overview</h2>
+      <div class="stats">
+        <div class="stat"><span>Bag equivalents</span><strong id="totalBags">0</strong></div>
+        <div class="stat"><span>Estimated bushels</span><strong id="totalBu">0</strong></div>
+        <div class="stat"><span>Fields recorded</span><strong id="fieldCount">0</strong></div>
+        <div class="stat"><span>High-priority bags</span><strong id="highCount">0</strong></div>
+      </div>
+    </section>
 
-<section class="card">
-<h2>Bag records</h2>
-<label for="search">Search fields or notes</label>
-<input id="search" placeholder="Type a field, crew, crop or note">
-<div class="grid">
-<div><label for="crewFilter">Filter by crew</label><select id="crewFilter"><option value="">All crews</option><option>Crew 1</option><option>Crew 2</option><option>Crew 3</option></select></div>
-<div><label for="cropFilter">Filter by crop</label><select id="cropFilter"><option value="">All crops</option><option>Corn</option><option>Soybeans</option><option>Wheat</option><option>Other</option></select></div>
-</div>
-<div id="records"><p class="muted">No records yet.</p></div>
-<button class="secondary" id="exportBtn">Export CSV backup</button>
-</section>
+    <section class="card">
+      <h2>Quick actions</h2>
+      <button id="quickTrackBtn">＋ Track a new bag</button>
+      <button class="secondary" id="quickRecordsBtn">View bag records</button>
+      <button class="secondary" id="quickFarmsBtn">Manage farms and fields</button>
+    </section>
+  </section>
+
+  <!-- TRACK BAG PAGE -->
+  <section class="page" id="page-track">
+    <div class="page-heading">
+      <h2>Track Bag</h2>
+      <p>Record a new bag or update an existing one.</p>
+    </div>
+
+    <section class="card" id="entryCard">
+      <h2 id="formTitle">Add a bag</h2>
+      <form id="bagForm">
+        <input type="hidden" id="editingId">
+
+        <div class="grid">
+          <div>
+            <label for="crew">Crew</label>
+            <select id="crew">
+              <option>Crew 1</option>
+              <option>Crew 2</option>
+              <option>Crew 3</option>
+            </select>
+          </div>
+          <div>
+            <label for="crop">Crop</label>
+            <select id="crop">
+              <option>Corn</option>
+              <option>Soybeans</option>
+              <option>Wheat</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="organization">Organisation / Farm</label>
+        <select id="organization" required></select>
+
+        <label for="field">Field</label>
+        <select id="field" required></select>
+
+        <div class="grid">
+          <div>
+            <label for="date">Date bagged</label>
+            <input id="date" type="date" required>
+          </div>
+          <div>
+            <label for="length">Bag length</label>
+            <select id="length">
+              <option value="500">500 ft</option>
+              <option value="300">300 ft</option>
+              <option value="Other">Other / unknown</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="fraction">Bag size</label>
+            <select id="fraction">
+              <option value="1">Full bag</option>
+              <option value=".75">¾ bag</option>
+              <option value=".5">½ bag</option>
+              <option value=".25">¼ bag</option>
+            </select>
+          </div>
+          <div>
+            <label for="bushels">Estimated bushels</label>
+            <input id="bushels" type="number" min="0" step="any" placeholder="Optional">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="moisture">Moisture (%)</label>
+            <input id="moisture" type="number" min="0" max="100" step="any" placeholder="Optional">
+          </div>
+          <div>
+            <label for="priority">Priority</label>
+            <select id="priority">
+              <option>Normal</option>
+              <option>High</option>
+              <option>Urgent</option>
+              <option>Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="status">Status</label>
+            <select id="status">
+              <option>Finished</option>
+              <option>Filling</option>
+              <option>Being emptied</option>
+              <option>Empty</option>
+            </select>
+          </div>
+          <div>
+            <label for="gps">GPS coordinates (optional)</label>
+            <input id="gps" placeholder="Optional">
+          </div>
+        </div>
+
+        <label for="notes">Location or notes (optional)</label>
+        <input id="notes" placeholder="e.g. East end by the lane">
+
+        <button type="submit" id="saveBtn">Save bag</button>
+        <button type="button" class="secondary hidden" id="cancelBtn">Cancel editing</button>
+      </form>
+
+      <button class="secondary" id="gpsBtn">📍 Get my GPS location</button>
+      <p class="hint">Each record represents one bag. Add multiple bags for the same field one at a time.</p>
+    </section>
+  </section>
+
+  <!-- BAG RECORDS PAGE -->
+  <section class="page" id="page-records">
+    <div class="page-heading">
+      <h2>Bag Records</h2>
+      <p>Search, filter, edit and manage recorded bags.</p>
+    </div>
+
+    <section class="card">
+      <label for="search">Search fields or notes</label>
+      <input id="search" placeholder="Type a field, crew, crop or note">
+
+      <div class="grid">
+        <div>
+          <label for="crewFilter">Filter by crew</label>
+          <select id="crewFilter">
+            <option value="">All crews</option>
+            <option>Crew 1</option>
+            <option>Crew 2</option>
+            <option>Crew 3</option>
+          </select>
+        </div>
+        <div>
+          <label for="cropFilter">Filter by crop</label>
+          <select id="cropFilter">
+            <option value="">All crops</option>
+            <option>Corn</option>
+            <option>Soybeans</option>
+            <option>Wheat</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="records"><p class="muted">No records yet.</p></div>
+      <button class="secondary" id="exportBtn">Export CSV backup</button>
+    </section>
+  </section>
+
+  <!-- FARMS AND FIELDS PAGE -->
+  <section class="page" id="page-farms">
+    <div class="page-heading">
+      <h2>Farms &amp; Fields</h2>
+      <p>Manage shared organisations and their fields.</p>
+    </div>
+
+    <section class="card">
+      <h2>Organisations</h2>
+      <p class="hint">All signed-in crews share these settings.</p>
+
+      <label for="orgManage">Select organisation</label>
+      <select id="orgManage"></select>
+
+      <label for="newOrg">Add an organisation / farm</label>
+      <input id="newOrg" placeholder="e.g. Home Farm">
+      <button type="button" id="addOrgBtn">Add organisation</button>
+      <button type="button" class="secondary" id="renameOrgBtn">Rename selected organisation</button>
+      <button type="button" class="danger" id="deleteOrgBtn">Remove selected organisation</button>
+
+      <hr>
+
+      <h2>Fields</h2>
+      <label for="newField">Add a field to this organisation</label>
+      <input id="newField" placeholder="e.g. North 80">
+      <button type="button" id="addFieldBtn">Add field</button>
+
+      <label for="fieldManage">Fields in selected organisation</label>
+      <select id="fieldManage"></select>
+      <button type="button" class="secondary" id="renameFieldBtn">Rename selected field</button>
+      <button type="button" class="danger" id="deleteFieldBtn">Remove selected field</button>
+
+      <p class="hint">A field with existing bag records cannot be removed. Renaming a field updates matching records.</p>
+      <p id="settingsStatus" class="hint">Sign in to load shared settings.</p>
+    </section>
+  </section>
+
 </main>
+
+<!-- Fixed navigation stays visible at the bottom -->
+<nav class="bottom-nav hidden" id="bottomNav" aria-label="Main navigation">
+  <button type="button" class="nav-btn active" data-page="overview">
+    <span class="nav-icon">🏠</span>
+    <span>Overview</span>
+  </button>
+  <button type="button" class="nav-btn" data-page="track">
+    <span class="nav-icon">＋</span>
+    <span>Track Bag</span>
+  </button>
+  <button type="button" class="nav-btn" data-page="records">
+    <span class="nav-icon">📋</span>
+    <span>Records</span>
+  </button>
+  <button type="button" class="nav-btn" data-page="farms">
+    <span class="nav-icon">🌾</span>
+    <span>Farms &amp; Fields</span>
+  </button>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -148,6 +400,7 @@ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4XzsNWOoL7J6Z7vKEGX0aw_oqoAyFbb
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "grainBagTrackerStarter";
+
 let client = null;
 let records = [];
 let organisations = [];
@@ -155,425 +408,579 @@ let loggedIn = false;
 let busy = false;
 let settingsBusy = false;
 
-function today(){
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.toggle("active", page.id === "page-" + name);
+  });
+
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    const active = button.dataset.page === name;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+  });
+
+  window.scrollTo({top: 0, behavior: "instant"});
+}
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.page));
+});
+
+$("quickTrackBtn").addEventListener("click", () => {
+  resetForm();
+  showPage("track");
+});
+$("quickRecordsBtn").addEventListener("click", () => showPage("records"));
+$("quickFarmsBtn").addEventListener("click", () => showPage("farms"));
+
+function today() {
   const d = new Date();
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
 }
 $("date").value = today();
 
-function loadLocal(){
+function loadLocal() {
   try {
     const x = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     records = Array.isArray(x) ? x : [];
-  } catch(e) { records = []; }
+  } catch(e) {
+    records = [];
+  }
 }
-function saveLocal(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); return true; }
-  catch(e) { alert("Could not save on this device. Export a CSV backup."); return false; }
-}
-function fractionLabel(n){ return n===.25?"¼":n===.5?"½":n===.75?"¾":"Full"; }
 
-function normalize(b){
+function saveLocal() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    return true;
+  } catch(e) {
+    alert("Could not save on this device. Export a CSV backup.");
+    return false;
+  }
+}
+
+function fractionLabel(n) {
+  return n === .25 ? "¼" : n === .5 ? "½" : n === .75 ? "¾" : "Full";
+}
+
+function normalize(b) {
   return {
-    id:String(b.id || ("BAG-"+Date.now()+"-"+Math.random().toString(36).slice(2,7))),
-    organization:b.organization || "",
-    crew:b.crew || "Crew 1",
-    field:b.field || b.field_name || "",
-    crop:b.crop || b.crop_type || "Corn",
-    length:String(b.length || b.bag_length || "500"),
-    date:b.date || b.date_bagged || today(),
-    fraction:Number(b.fraction || b.quantity || b.bag_fraction || 1),
-    bushels:b.bushels == null ? "" : b.bushels,
-    moisture:b.moisture == null ? "" : b.moisture,
-    priority:b.priority || "Normal",
-    status:b.status || "Finished",
-    notes:b.notes || b.location || b.location_notes || "",
-    gps:b.gps || "",
-    time:b.time || b.entry_time || new Date().toLocaleString()
+    id: String(b.id || ("BAG-" + Date.now() + "-" + Math.random().toString(36).slice(2,7))),
+    organization: b.organization || "",
+    crew: b.crew || "Crew 1",
+    field: b.field || b.field_name || "",
+    crop: b.crop || b.crop_type || "Corn",
+    length: String(b.length || b.bag_length || "500"),
+    date: b.date || b.date_bagged || today(),
+    fraction: Number(b.fraction ?? b.quantity ?? b.bag_fraction ?? 1) || 1,
+    bushels: b.bushels == null ? "" : b.bushels,
+    moisture: b.moisture == null ? "" : b.moisture,
+    priority: b.priority || "Normal",
+    status: b.status || "Finished",
+    notes: b.notes || b.location || b.location_notes || "",
+    gps: b.gps || "",
+    time: b.time || b.entry_time || new Date().toLocaleString()
   };
 }
-function toCloud(b){
+
+function toCloud(b) {
   return {
-    app_id:String(b.id),
-    organization:b.organization || null,
-    crew:b.crew || "Crew 1",
-    field_name:b.field || "Unnamed field",
-    crop_type:b.crop || "Corn",
-    bag_length:String(b.length || "Other"),
-    bag_fraction:Number(b.fraction) || 1,
-    fraction_label:fractionLabel(Number(b.fraction) || 1),
-    fill_type:Number(b.fraction)<1 ? "Partial" : "Full",
-    fill_percent:"",
-    bushels:b.bushels==="" || b.bushels==null ? null : Number(b.bushels),
-    moisture:b.moisture==="" || b.moisture==null ? null : Number(b.moisture),
-    date_bagged:b.date || null,
-    location_notes:b.notes || null,
-    gps:b.gps || null,
-    entry_time:b.time || null,
-    updated_label:new Date().toLocaleString(),
-    priority:b.priority || "Normal",
-    status:b.status || "Finished"
+    app_id: String(b.id),
+    organization: b.organization || null,
+    crew: b.crew || "Crew 1",
+    field_name: b.field || "Unnamed field",
+    crop_type: b.crop || "Corn",
+    bag_length: String(b.length || "Other"),
+    bag_fraction: Number(b.fraction) || 1,
+    fraction_label: fractionLabel(Number(b.fraction) || 1),
+    fill_type: Number(b.fraction) < 1 ? "Partial" : "Full",
+    fill_percent: "",
+    bushels: b.bushels === "" || b.bushels == null ? null : Number(b.bushels),
+    moisture: b.moisture === "" || b.moisture == null ? null : Number(b.moisture),
+    date_bagged: b.date || null,
+    location_notes: b.notes || null,
+    gps: b.gps || null,
+    entry_time: b.time || null,
+    updated_label: new Date().toLocaleString(),
+    priority: b.priority || "Normal",
+    status: b.status || "Finished"
   };
 }
-function fromCloud(r){
+
+function fromCloud(r) {
   return normalize({
-    id:r.app_id,
-    organization:r.organization || "",
-    crew:r.crew,
-    field:r.field_name,
-    crop:r.crop_type,
-    length:r.bag_length,
-    date:r.date_bagged,
-    fraction:r.bag_fraction,
-    bushels:r.bushels,
-    moisture:r.moisture,
-    priority:r.priority,
-    status:r.status,
-    notes:r.location_notes,
-    gps:r.gps,
-    time:r.entry_time
+    id: r.app_id,
+    organization: r.organization || "",
+    crew: r.crew,
+    field: r.field_name,
+    crop: r.crop_type,
+    length: r.bag_length,
+    date: r.date_bagged,
+    fraction: r.bag_fraction,
+    bushels: r.bushels,
+    moisture: r.moisture,
+    priority: r.priority,
+    status: r.status,
+    notes: r.location_notes,
+    gps: r.gps,
+    time: r.entry_time
   });
 }
-async function syncUpsert(b){
-  const {error} = await client.from("bag_records").upsert(toCloud(b), {onConflict:"app_id"});
+
+async function syncUpsert(b) {
+  const {error} = await client.from("bag_records").upsert(
+    toCloud(b), {onConflict: "app_id"}
+  );
   if(error) throw error;
 }
-async function syncAll(){
+
+async function syncAll() {
   if(!loggedIn || busy) return;
   busy = true;
   $("cloudStatus").textContent = "Syncing shared records...";
+
   try {
-    const {data,error} = await client.from("bag_records").select("*").order("created_at", {ascending:true});
+    const {data, error} = await client.from("bag_records")
+      .select("*").order("created_at", {ascending: true});
     if(error) throw error;
-    const remote = (data || []).filter(x=>x.app_id).map(fromCloud);
-    const ids = new Set(remote.map(x=>String(x.id)));
-    const localOnly = records.filter(x=>!ids.has(String(x.id)));
-    if(localOnly.length){
-      const {error:e} = await client.from("bag_records").upsert(localOnly.map(toCloud), {onConflict:"app_id"});
+
+    const remote = (data || []).filter(x => x.app_id).map(fromCloud);
+    const ids = new Set(remote.map(x => String(x.id)));
+    const localOnly = records.filter(x => !ids.has(String(x.id)));
+
+    if(localOnly.length) {
+      const {error: e} = await client.from("bag_records")
+        .upsert(localOnly.map(toCloud), {onConflict: "app_id"});
       if(e) throw e;
-      const {data:d,error:ee} = await client.from("bag_records").select("*").order("created_at", {ascending:true});
+
+      const {data: d, error: ee} = await client.from("bag_records")
+        .select("*").order("created_at", {ascending: true});
       if(ee) throw ee;
-      records = (d || []).filter(x=>x.app_id).map(fromCloud);
+      records = (d || []).filter(x => x.app_id).map(fromCloud);
     } else {
       records = remote;
     }
+
     saveLocal();
     render();
-    $("cloudStatus").textContent = "✓ Shared and synced · "+records.length+" bag records";
+    $("cloudStatus").textContent = "✓ Shared and synced · " + records.length + " bag records";
   } catch(e) {
-    $("cloudStatus").textContent = "Sync error: "+e.message;
+    $("cloudStatus").textContent = "Sync error: " + e.message;
   } finally {
     busy = false;
   }
 }
 
-async function signIn(){
+async function signIn() {
   const url = SUPABASE_URL.trim(), key = SUPABASE_PUBLISHABLE_KEY.trim();
-  if(!url.startsWith("https://") || key.includes("PASTE_") || !key){
+
+  if(!url.startsWith("https://") || key.includes("PASTE_") || !key) {
     $("loginStatus").textContent = "The Project URL and publishable key need to be configured.";
     return;
   }
-  if(!window.supabase){
+  if(!window.supabase) {
     $("loginStatus").textContent = "Supabase could not load. Check your internet connection.";
     return;
   }
+
   $("loginBtn").disabled = true;
   $("loginStatus").textContent = "Signing in...";
+
   try {
     client = window.supabase.createClient(url, key);
     const {error} = await client.auth.signInWithPassword({
-      email:$("email").value.trim(),
-      password:$("password").value
+      email: $("email").value.trim(),
+      password: $("password").value
     });
     if(error) throw error;
+
     loggedIn = true;
     $("loginCard").classList.add("hidden");
     $("app").classList.remove("hidden");
+    $("bottomNav").classList.remove("hidden");
+
     await syncAll();
     await loadSettings();
-    if(!window.bagSyncTimer){
-      window.bagSyncTimer = setInterval(async()=>{
+    showPage("overview");
+
+    if(!window.bagSyncTimer) {
+      window.bagSyncTimer = setInterval(async () => {
         await syncAll();
         await loadSettings();
-      },15000);
+      }, 15000);
     }
   } catch(e) {
-    $("loginStatus").textContent = "Sign-in failed: "+e.message;
+    $("loginStatus").textContent = "Sign-in failed: " + e.message;
   } finally {
     $("loginBtn").disabled = false;
   }
 }
+
 $("loginBtn").addEventListener("click", signIn);
-["email","password"].forEach(id => $(id).addEventListener("keydown",e=>{
-  if(e.key==="Enter") signIn();
+["email", "password"].forEach(id => $(id).addEventListener("keydown", e => {
+  if(e.key === "Enter") signIn();
 }));
-$("logoutBtn").addEventListener("click", async()=>{
+
+$("logoutBtn").addEventListener("click", async () => {
   if(client) await client.auth.signOut();
   loggedIn = false;
   $("app").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
   $("loginCard").classList.remove("hidden");
   $("loginStatus").textContent = "Signed out.";
 });
-$("refreshBtn").addEventListener("click", async()=>{
+
+$("refreshBtn").addEventListener("click", async () => {
   await syncAll();
   await loadSettings();
 });
 
-function escapeHTML(v){
-  return String(v==null?"":v).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+function escapeHTML(v) {
+  return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   })[c]);
 }
-function bagCount(b){ return Number(b.fraction) || 1; }
-function orgName(id){
-  const o = organisations.find(x=>x.id===id);
+
+function bagCount(b) {
+  return Number(b.fraction) || 1;
+}
+
+function orgName(id) {
+  const o = organisations.find(x => x.id === id);
   return o ? o.name : "";
 }
-function render(){
-  const total = records.reduce((s,b)=>s+bagCount(b),0);
-  const bushels = records.reduce((s,b)=>s+(b.bushels===""?0:Number(b.bushels)||0),0);
-  $("totalBags").textContent = total.toLocaleString("en-US",{maximumFractionDigits:2});
+
+function render() {
+  const total = records.reduce((s,b) => s + bagCount(b), 0);
+  const bushels = records.reduce((s,b) =>
+    s + (b.bushels === "" ? 0 : Number(b.bushels) || 0), 0);
+
+  $("totalBags").textContent = total.toLocaleString("en-US", {maximumFractionDigits: 2});
   $("totalBu").textContent = Math.round(bushels).toLocaleString("en-US");
-  $("fieldCount").textContent = new Set(records.map(b=>(b.organization+"|"+b.field).toLowerCase()).filter(Boolean)).size;
-  $("highCount").textContent = records.filter(b=>["High","Urgent"].includes(b.priority)&&b.status!=="Empty").length;
+  $("fieldCount").textContent = new Set(
+    records.map(b => (b.organization + "|" + b.field).toLowerCase()).filter(Boolean)
+  ).size;
+  $("highCount").textContent = records.filter(b =>
+    ["High", "Urgent"].includes(b.priority) && b.status !== "Empty"
+  ).length;
 
   const term = $("search").value.trim().toLowerCase();
-  const crew = $("crewFilter").value, crop = $("cropFilter").value;
-  const shown = records.filter(b=>
-    (!term || [b.field,b.crew,b.crop,b.notes,b.status,orgName(b.organization)].join(" ").toLowerCase().includes(term)) &&
-    (!crew || b.crew===crew) &&
-    (!crop || b.crop===crop)
+  const crew = $("crewFilter").value;
+  const crop = $("cropFilter").value;
+
+  const shown = records.filter(b =>
+    (!term || [b.field, b.crew, b.crop, b.notes, b.status, orgName(b.organization)]
+      .join(" ").toLowerCase().includes(term)) &&
+    (!crew || b.crew === crew) &&
+    (!crop || b.crop === crop)
   ).slice().reverse();
 
-  if(!shown.length){
-    $("records").innerHTML = '<p class="muted">No matching bag records.</p>';
+  if(!shown.length) {
+    $("records").innerHTML = '<div class="empty-state">No matching bag records.</div>';
     return;
   }
-  $("records").innerHTML = shown.map(b=>`
+
+  $("records").innerHTML = shown.map(b => `
     <div class="record">
       <strong>${escapeHTML(b.field)} · ${escapeHTML(fractionLabel(bagCount(b)))} bag</strong>
-      <small>${escapeHTML(orgName(b.organization)||"Organisation not assigned")} · ${escapeHTML(b.crew)} · ${escapeHTML(b.crop)} · ${escapeHTML(b.date)}</small>
-      <small>Bag length: ${escapeHTML(b.length)} ft · Bushels: ${b.bushels===""?"Not entered":escapeHTML(b.bushels)} · Moisture: ${b.moisture===""?"Not entered":escapeHTML(b.moisture)+"%"}</small>
+      <small>${escapeHTML(orgName(b.organization) || "Organisation not assigned")} · ${escapeHTML(b.crew)} · ${escapeHTML(b.crop)} · ${escapeHTML(b.date)}</small>
+      <small>Bag length: ${escapeHTML(b.length)} ft · Bushels: ${b.bushels === "" ? "Not entered" : escapeHTML(b.bushels)} · Moisture: ${b.moisture === "" ? "Not entered" : escapeHTML(b.moisture) + "%"}</small>
       <small>Priority: ${escapeHTML(b.priority)} · Status: ${escapeHTML(b.status)}</small>
-      ${b.notes?`<small>Notes: ${escapeHTML(b.notes)}</small>`:""}
-      ${b.gps?`<small>GPS: ${escapeHTML(b.gps)}</small>`:""}
+      ${b.notes ? `<small>Notes: ${escapeHTML(b.notes)}</small>` : ""}
+      ${b.gps ? `<small>GPS: ${escapeHTML(b.gps)}</small>` : ""}
       <div class="actions">
         <button class="secondary" data-edit="${escapeHTML(b.id)}">Edit</button>
         <button class="danger" data-delete="${escapeHTML(b.id)}">Delete</button>
       </div>
-    </div>`).join("");
+    </div>
+  `).join("");
 }
-["search","crewFilter","cropFilter"].forEach(id=>
-  $(id).addEventListener(id==="search"?"input":"change",render)
-);
+
+["search", "crewFilter", "cropFilter"].forEach(id => {
+  $(id).addEventListener(id === "search" ? "input" : "change", render);
+});
 
 /* Shared organisation and field settings */
-function fieldsFor(orgId){
-  const org = organisations.find(o=>o.id===orgId);
+function fieldsFor(orgId) {
+  const org = organisations.find(o => o.id === orgId);
   return org ? org.fields : [];
 }
-function renderSettings(){
+
+function renderSettings() {
   const manage = $("orgManage"), entry = $("organization");
   const oldManage = manage.value, oldEntry = entry.value;
 
-  manage.innerHTML = organisations.map(o=>
-    `<option value="${escapeHTML(o.id)}">${escapeHTML(o.name)}</option>`
-  ).join("");
-  entry.innerHTML = organisations.map(o=>
+  manage.innerHTML = organisations.map(o =>
     `<option value="${escapeHTML(o.id)}">${escapeHTML(o.name)}</option>`
   ).join("");
 
-  if(organisations.some(o=>o.id===oldManage)) manage.value = oldManage;
-  if(organisations.some(o=>o.id===oldEntry)) entry.value = oldEntry;
+  entry.innerHTML = organisations.map(o =>
+    `<option value="${escapeHTML(o.id)}">${escapeHTML(o.name)}</option>`
+  ).join("");
+
+  if(organisations.some(o => o.id === oldManage)) manage.value = oldManage;
+  if(organisations.some(o => o.id === oldEntry)) entry.value = oldEntry;
   else if(organisations.length) entry.value = organisations[0].id;
 
   renderFieldOptions();
   renderManagedFields();
 }
-function renderFieldOptions(){
-  const s = $("field"), old = s.value, fields = fieldsFor($("organization").value);
-  s.innerHTML = fields.map(f=>
+
+function renderFieldOptions() {
+  const s = $("field"), old = s.value;
+  const fields = fieldsFor($("organization").value);
+
+  s.innerHTML = fields.map(f =>
     `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`
   ).join("");
+
   if(fields.includes(old)) s.value = old;
-  if(!fields.length) s.innerHTML = '<option value="">Add a field in Organisations &amp; Fields first</option>';
+
+  if(!fields.length) {
+    s.innerHTML = '<option value="">Add a field in Farms &amp; Fields first</option>';
+  }
   s.disabled = !fields.length;
 }
-function renderManagedFields(){
-  const s = $("fieldManage"), old = s.value, fields = fieldsFor($("orgManage").value);
-  s.innerHTML = fields.map(f=>
+
+function renderManagedFields() {
+  const s = $("fieldManage"), old = s.value;
+  const fields = fieldsFor($("orgManage").value);
+
+  s.innerHTML = fields.map(f =>
     `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`
   ).join("");
+
   if(fields.includes(old)) s.value = old;
   if(!fields.length) s.innerHTML = '<option value="">No fields yet</option>';
 }
-async function loadSettings(){
+
+async function loadSettings() {
   if(!client || settingsBusy) return;
   settingsBusy = true;
   $("settingsStatus").textContent = "Loading shared organisations and fields...";
+
   try {
-    const {data,error} = await client.from("farm_settings").select("*").order("name");
+    const {data, error} = await client.from("farm_settings").select("*").order("name");
     if(error) throw error;
-    organisations = (data||[]).map(o=>({
-      id:String(o.id),
-      name:String(o.name),
-      fields:Array.isArray(o.fields)?o.fields.map(String):[]
+
+    organisations = (data || []).map(o => ({
+      id: String(o.id),
+      name: String(o.name),
+      fields: Array.isArray(o.fields) ? o.fields.map(String) : []
     }));
+
     renderSettings();
-    $("settingsStatus").textContent = organisations.length ?
-      "✓ Shared settings loaded." : "No organisations yet. Add your first farm below.";
+    $("settingsStatus").textContent = organisations.length
+      ? "✓ Shared settings loaded."
+      : "No organisations yet. Add your first farm below.";
   } catch(e) {
-    $("settingsStatus").textContent = "Settings error: "+e.message;
+    $("settingsStatus").textContent = "Settings error: " + e.message;
   } finally {
     settingsBusy = false;
   }
 }
-async function saveOrganisation(org){
+
+async function saveOrganisation(org) {
   const {error} = await client.from("farm_settings").upsert({
-    id:org.id,
-    name:org.name,
-    fields:org.fields,
-    updated_at:new Date().toISOString()
+    id: org.id,
+    name: org.name,
+    fields: org.fields,
+    updated_at: new Date().toISOString()
   });
   if(error) throw error;
 }
-async function changeSettings(action){
-  if(!loggedIn || !client){
+
+async function changeSettings(action) {
+  if(!loggedIn || !client) {
     alert("Please sign in first.");
     return;
   }
+
   try {
     await action();
     await loadSettings();
     render();
     $("settingsStatus").textContent = "✓ Shared settings saved.";
   } catch(e) {
-    $("settingsStatus").textContent = "Save failed: "+e.message;
-    alert("Could not save shared settings: "+e.message);
+    $("settingsStatus").textContent = "Save failed: " + e.message;
+    alert("Could not save shared settings: " + e.message);
   }
 }
-$("addOrgBtn").addEventListener("click",()=>changeSettings(async()=>{
+
+$("addOrgBtn").addEventListener("click", () => changeSettings(async () => {
   const name = $("newOrg").value.trim();
   if(!name) throw new Error("Enter an organisation name.");
-  if(organisations.some(o=>o.name.toLowerCase()===name.toLowerCase()))
+  if(organisations.some(o => o.name.toLowerCase() === name.toLowerCase())) {
     throw new Error("That organisation already exists.");
+  }
+
   await saveOrganisation({
-    id:"ORG-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),
+    id: "ORG-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7),
     name,
-    fields:[]
+    fields: []
   });
   $("newOrg").value = "";
 }));
-$("renameOrgBtn").addEventListener("click",()=>changeSettings(async()=>{
-  const org = organisations.find(o=>o.id===$("orgManage").value);
+
+$("renameOrgBtn").addEventListener("click", () => changeSettings(async () => {
+  const org = organisations.find(o => o.id === $("orgManage").value);
   if(!org) throw new Error("Select an organisation first.");
-  const name = prompt("New organisation name:",org.name);
-  if(name===null) return;
+
+  const name = prompt("New organisation name:", org.name);
+  if(name === null) return;
   if(!name.trim()) throw new Error("Name cannot be empty.");
-  if(organisations.some(o=>o.id!==org.id&&o.name.toLowerCase()===name.trim().toLowerCase()))
-    throw new Error("That organisation name already exists.");
+
+  if(organisations.some(o =>
+    o.id !== org.id && o.name.toLowerCase() === name.trim().toLowerCase()
+  )) throw new Error("That organisation name already exists.");
+
   org.name = name.trim();
   await saveOrganisation(org);
 }));
-$("deleteOrgBtn").addEventListener("click",()=>changeSettings(async()=>{
-  const org = organisations.find(o=>o.id===$("orgManage").value);
+
+$("deleteOrgBtn").addEventListener("click", () => changeSettings(async () => {
+  const org = organisations.find(o => o.id === $("orgManage").value);
   if(!org) throw new Error("Select an organisation first.");
-  if(records.some(b=>b.organization===org.id))
+
+  if(records.some(b => b.organization === org.id)) {
     throw new Error("This organisation has bag records. Reassign those records before removing it.");
-  if(!confirm("Remove "+org.name+" and its field list?")) return;
-  const {error} = await client.from("farm_settings").delete().eq("id",org.id);
+  }
+  if(!confirm("Remove " + org.name + " and its field list?")) return;
+
+  const {error} = await client.from("farm_settings").delete().eq("id", org.id);
   if(error) throw error;
 }));
-$("addFieldBtn").addEventListener("click",()=>changeSettings(async()=>{
-  const org = organisations.find(o=>o.id===$("orgManage").value);
+
+$("addFieldBtn").addEventListener("click", () => changeSettings(async () => {
+  const org = organisations.find(o => o.id === $("orgManage").value);
   const name = $("newField").value.trim();
+
   if(!org) throw new Error("Add or select an organisation first.");
   if(!name) throw new Error("Enter a field name.");
-  if(org.fields.some(f=>f.toLowerCase()===name.toLowerCase()))
+  if(org.fields.some(f => f.toLowerCase() === name.toLowerCase())) {
     throw new Error("That field already exists in this organisation.");
+  }
+
   org.fields.push(name);
   await saveOrganisation(org);
   $("newField").value = "";
 }));
-$("renameFieldBtn").addEventListener("click",()=>changeSettings(async()=>{
-  const org = organisations.find(o=>o.id===$("orgManage").value);
+
+$("renameFieldBtn").addEventListener("click", () => changeSettings(async () => {
+  const org = organisations.find(o => o.id === $("orgManage").value);
   const old = $("fieldManage").value;
+
   if(!org || !old) throw new Error("Select an organisation and field first.");
-  const value = prompt("New field name:",old);
-  if(value===null) return;
+
+  const value = prompt("New field name:", old);
+  if(value === null) return;
+
   const name = value.trim();
   if(!name) throw new Error("Name cannot be empty.");
-  if(org.fields.some(f=>f.toLowerCase()===name.toLowerCase()&&f!==old))
+  if(org.fields.some(f => f.toLowerCase() === name.toLowerCase() && f !== old)) {
     throw new Error("That field name already exists in this organisation.");
+  }
 
-  org.fields = org.fields.map(f=>f===old?name:f);
+  org.fields = org.fields.map(f => f === old ? name : f);
   await saveOrganisation(org);
 
-  const affected = records.filter(b=>b.organization===org.id&&b.field===old);
-  for(const b of affected){
+  const affected = records.filter(b => b.organization === org.id && b.field === old);
+  for(const b of affected) {
     b.field = name;
     await syncUpsert(b);
   }
+
   saveLocal();
   render();
 }));
-$("deleteFieldBtn").addEventListener("click",()=>changeSettings(async()=>{
-  const org = organisations.find(o=>o.id===$("orgManage").value);
+
+$("deleteFieldBtn").addEventListener("click", () => changeSettings(async () => {
+  const org = organisations.find(o => o.id === $("orgManage").value);
   const field = $("fieldManage").value;
+
   if(!org || !field) throw new Error("Select an organisation and field first.");
-  if(records.some(b=>b.organization===org.id&&b.field===field))
+  if(records.some(b => b.organization === org.id && b.field === field)) {
     throw new Error("This field has bag records. Rename it instead, or reassign the records first.");
-  if(!confirm("Remove field "+field+"?")) return;
-  org.fields = org.fields.filter(f=>f!==field);
+  }
+  if(!confirm("Remove field " + field + "?")) return;
+
+  org.fields = org.fields.filter(f => f !== field);
   await saveOrganisation(org);
 }));
-$("orgManage").addEventListener("change",renderManagedFields);
-$("organization").addEventListener("change",renderFieldOptions);
+
+$("orgManage").addEventListener("change", renderManagedFields);
+$("organization").addEventListener("change", renderFieldOptions);
 
 /* Bag creation, editing and deletion */
-$("bagForm").addEventListener("submit",async e=>{
+$("bagForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const editing = $("editingId").value;
-  const bushels = $("bushels").value, moisture = $("moisture").value;
-  if(bushels!==""&&Number(bushels)<0){alert("Bushels cannot be negative.");return;}
-  if(moisture!==""&&(Number(moisture)<0||Number(moisture)>100)){
-    alert("Moisture must be between 0 and 100.");return;
-  }
-  const old = records.find(x=>x.id===editing);
-  const b = normalize({
-    id:editing||("BAG-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,6).toUpperCase()),
-    organization:$("organization").value,
-    crew:$("crew").value,
-    field:$("field").value.trim(),
-    crop:$("crop").value,
-    length:$("length").value,
-    date:$("date").value,
-    fraction:Number($("fraction").value),
-    bushels:bushels===""?"":Number(bushels),
-    moisture:moisture===""?"":Number(moisture),
-    priority:$("priority").value,
-    status:$("status").value,
-    notes:$("notes").value.trim(),
-    gps:$("gps").value.trim(),
-    time:old?old.time:new Date().toLocaleString()
-  });
-  if(!b.organization){alert("Select an organisation first.");return;}
-  if(!b.field){alert("Select a field first.");return;}
 
-  if(editing) records = records.map(x=>x.id===editing?b:x);
+  const editing = $("editingId").value;
+  const bushels = $("bushels").value;
+  const moisture = $("moisture").value;
+
+  if(bushels !== "" && Number(bushels) < 0) {
+    alert("Bushels cannot be negative.");
+    return;
+  }
+  if(moisture !== "" && (Number(moisture) < 0 || Number(moisture) > 100)) {
+    alert("Moisture must be between 0 and 100.");
+    return;
+  }
+
+  const old = records.find(x => x.id === editing);
+
+  const b = normalize({
+    id: editing || ("BAG-" + Date.now().toString(36).toUpperCase() + "-" +
+      Math.random().toString(36).slice(2,6).toUpperCase()),
+    organization: $("organization").value,
+    crew: $("crew").value,
+    field: $("field").value.trim(),
+    crop: $("crop").value,
+    length: $("length").value,
+    date: $("date").value,
+    fraction: Number($("fraction").value),
+    bushels: bushels === "" ? "" : Number(bushels),
+    moisture: moisture === "" ? "" : Number(moisture),
+    priority: $("priority").value,
+    status: $("status").value,
+    notes: $("notes").value.trim(),
+    gps: $("gps").value.trim(),
+    time: old ? old.time : new Date().toLocaleString()
+  });
+
+  if(!b.organization) {
+    alert("Select an organisation first.");
+    return;
+  }
+  if(!b.field) {
+    alert("Select a field first.");
+    return;
+  }
+
+  if(editing) records = records.map(x => x.id === editing ? b : x);
   else records.push(b);
 
   if(!saveLocal()) return;
+
   render();
   resetForm();
 
-  if(loggedIn){
-    try { await syncUpsert(b); await syncAll(); }
-    catch(err){ $("cloudStatus").textContent = "Saved on this device, but cloud sync failed: "+err.message; }
+  if(loggedIn) {
+    try {
+      await syncUpsert(b);
+      await syncAll();
+    } catch(err) {
+      $("cloudStatus").textContent = "Saved on this device, but cloud sync failed: " + err.message;
+    }
   }
-  alert(editing?"Bag updated.":"Bag saved.");
+
+  alert(editing ? "Bag updated." : "Bag saved.");
+  showPage("records");
 });
-function resetForm(){
+
+function resetForm() {
   $("bagForm").reset();
   $("editingId").value = "";
   $("date").value = today();
@@ -582,20 +989,34 @@ function resetForm(){
   $("cancelBtn").classList.add("hidden");
   renderFieldOptions();
 }
-$("cancelBtn").addEventListener("click",resetForm);
 
-$("records").addEventListener("click",async e=>{
+$("cancelBtn").addEventListener("click", resetForm);
+
+$("records").addEventListener("click", async e => {
   const edit = e.target.closest("[data-edit]");
   const del = e.target.closest("[data-delete]");
-  if(edit){
-    const b = records.find(x=>x.id===edit.dataset.edit);
+
+  if(edit) {
+    const b = records.find(x => x.id === edit.dataset.edit);
     if(!b) return;
+
     $("editingId").value = b.id;
     $("crew").value = b.crew;
     $("crop").value = b.crop;
-    $("organization").value = b.organization||"";
+
+    const orgExists = organisations.some(o => o.id === b.organization);
+    if(orgExists) {
+      $("organization").value = b.organization;
+    } else if(organisations.length) {
+      $("organization").value = organisations[0].id;
+    }
+
     renderFieldOptions();
-    $("field").value = b.field;
+
+    if(Array.from($("field").options).some(o => o.value === b.field)) {
+      $("field").value = b.field;
+    }
+
     $("date").value = b.date;
     $("length").value = b.length;
     $("fraction").value = String(b.fraction);
@@ -605,51 +1026,81 @@ $("records").addEventListener("click",async e=>{
     $("status").value = b.status;
     $("notes").value = b.notes;
     $("gps").value = b.gps;
+
     $("formTitle").textContent = "Edit bag record";
     $("saveBtn").textContent = "Update bag";
     $("cancelBtn").classList.remove("hidden");
-    $("entryCard").scrollIntoView({behavior:"smooth"});
+    showPage("track");
+    $("entryCard").scrollIntoView({behavior: "smooth", block: "start"});
   }
-  if(del){
-    const id = del.dataset.delete, b = records.find(x=>x.id===id);
-    if(!b || !confirm("Delete this bag record for "+b.field+"?")) return;
-    records = records.filter(x=>x.id!==id);
+
+  if(del) {
+    const id = del.dataset.delete;
+    const b = records.find(x => x.id === id);
+    if(!b || !confirm("Delete this bag record for " + b.field + "?")) return;
+
+    records = records.filter(x => x.id !== id);
     if(!saveLocal()) return;
     render();
-    if(loggedIn){
-      const {error} = await client.from("bag_records").delete().eq("app_id",String(id));
-      if(error) $("cloudStatus").textContent = "Delete sync failed: "+error.message;
-      else await syncAll();
+
+    if(loggedIn) {
+      const {error} = await client.from("bag_records").delete().eq("app_id", String(id));
+      if(error) {
+        $("cloudStatus").textContent = "Delete sync failed: " + error.message;
+      } else {
+        await syncAll();
+      }
     }
   }
 });
 
-$("gpsBtn").addEventListener("click",()=>{
-  if(!navigator.geolocation){alert("GPS is unavailable in this browser.");return;}
+$("gpsBtn").addEventListener("click", () => {
+  if(!navigator.geolocation) {
+    alert("GPS is unavailable in this browser.");
+    return;
+  }
+
   $("gpsBtn").textContent = "Getting location...";
-  navigator.geolocation.getCurrentPosition(pos=>{
-    $("gps").value = pos.coords.latitude.toFixed(6)+", "+pos.coords.longitude.toFixed(6);
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    $("gps").value = pos.coords.latitude.toFixed(6) + ", " +
+      pos.coords.longitude.toFixed(6);
     $("gpsBtn").textContent = "📍 Get my GPS location";
-  },()=>{
+  }, () => {
     alert("Could not get GPS. Check location permissions.");
     $("gpsBtn").textContent = "📍 Get my GPS location";
-  },{enableHighAccuracy:true,timeout:15000});
+  }, {enableHighAccuracy: true, timeout: 15000});
 });
 
-$("exportBtn").addEventListener("click",()=>{
-  if(!records.length){alert("No records to export.");return;}
-  const cols = ["id","organization","crew","field","crop","length","date","fraction","bushels","moisture","priority","status","notes","gps","time"];
-  const csv = [cols.join(","),...records.map(b=>cols.map(k=>
-    '"'+String(b[k]??"").replace(/"/g,'""')+'"'
-  ).join(","))].join("\r\n");
-  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob), a = document.createElement("a");
+$("exportBtn").addEventListener("click", () => {
+  if(!records.length) {
+    alert("No records to export.");
+    return;
+  }
+
+  const cols = [
+    "id", "organization", "crew", "field", "crop", "length",
+    "date", "fraction", "bushels", "moisture", "priority",
+    "status", "notes", "gps", "time"
+  ];
+
+  const csv = [
+    cols.join(","),
+    ...records.map(b => cols.map(k =>
+      '"' + String(b[k] ?? "").replace(/"/g, '""') + '"'
+    ).join(","))
+  ].join("\r\n");
+
+  const blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
   a.href = url;
   a.download = "grain-bag-records.csv";
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
+/* Start with any records already saved on this device */
 loadLocal();
 records = records.map(normalize);
 saveLocal();
