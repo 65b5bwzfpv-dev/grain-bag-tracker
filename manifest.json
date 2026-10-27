@@ -1,3 +1,4 @@
+
 {
   "name": "Grain Bag Tracker",
   "short_name": "Bag Tracker",
@@ -7,5 +8,13 @@
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f5f5f0",
-  "theme_color": "#244c35"
+  "theme_color": "#244c35",
+  "icons": [
+    {
+      "src": "./C60674EF-3C8C-4ECE-B35B-B70E3D9B1B02.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
